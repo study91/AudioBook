@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">小学语文助手</string>
+    <string name="book_data_source">study91/data/book.db</string> <!-- 有声书数据源 -->
+    <string name="user_data_source">study91/data/user.db</string> <!-- 用户数据源 -->
 </resources>
