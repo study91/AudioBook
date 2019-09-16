@@ -1,7 +1,5 @@
 package com.study91.audiobook.book;
 
-import com.study91.audiobook.system.SystemManager;
-
 /**
  * 有声书管理器
  */
@@ -15,6 +13,7 @@ public class BookManager {
     public static void setBook(int bookID) {
         if (M.bookID != bookID) {
             M.bookID = bookID;
+            M.book = new Book(getBookID());
         }
     }
 
@@ -24,21 +23,31 @@ public class BookManager {
      */
     public static IBook getBook() {
         if (M.book == null) {
-
+            M.book = new Book(getBookID());
         }
 
         return M.book;
     }
 
-    private static IBookData getBookData() {
+    /**
+     * 获取有声书数据
+     * @return 有声书数据
+     */
+    public static IBookData getBookData() {
         if (M.bookData == null) {
-            M.bookData = new BookData(SystemManager.getContext());
+            M.bookData = new BookData();
         }
 
         return M.bookData;
     }
 
-
+    /**
+     * 获取有声书ID
+     * @return 有声书ID
+     */
+    private static int getBookID() {
+        return M.bookID;
+    }
 
     /**
      * 静态私有字段类
@@ -59,5 +68,4 @@ public class BookManager {
          */
         IBookData bookData;
     }
-
 }

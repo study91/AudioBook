@@ -2,6 +2,11 @@ package com.study91.audiobook.book;
 
 import android.graphics.drawable.Drawable;
 
+import com.study91.audiobook.dict.ContentType;
+import com.study91.audiobook.dict.FullMode;
+import com.study91.audiobook.dict.LinkMode;
+import com.study91.audiobook.dict.SoundType;
+
 import java.util.List;
 
 /**
@@ -54,31 +59,31 @@ public interface IBook {
      * 获取内容类型
      * @return 内容类型
      */
-    //ContentType getContentType();
+    ContentType getContentType();
 
     /**
      * 获取声音类型
      * @return 声音类型
      */
-    //SoundType getSoundType();
+    SoundType getSoundType();
 
     /**
      * 获取全屏模式
      * @return 全屏模式
      */
-    //FullMode getFullMode();
+    FullMode getFullMode();
 
     /**
      * 获取标题链接模式
      * @return 标题链接模式
      */
-    //LinkMode getTitleLinkMode();
+    LinkMode getTitleLinkMode();
 
     /**
      * 获取图标链接模式
      * @return 图标链接模式
      */
-    //LinkMode getIconLinkMode();
+    LinkMode getIconLinkMode();
 
     /**
      * 是否充许同步
@@ -95,7 +100,7 @@ public interface IBook {
     /**
      * 移动到下一个语音目录
      */
-    void moveToNextAudio();
+//    void moveToNextAudio();
 
     /**
      * 设置复读起点目录

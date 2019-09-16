@@ -2,4 +2,8 @@
     <string name="app_name">小学语文助手</string>
     <string name="book_data_source">study91/data/book.db</string> <!-- 有声书数据源 -->
     <string name="user_data_source">study91/data/user.db</string> <!-- 用户数据源 -->
+    <string name="book_file_path">study91/book/</string> <!-- 有声书文件路径 -->
+    <string name="audio_path">study91/book/[PACKAGE]/audio/</string> <!-- 语音文件路径 -->
+    <string name="icon_path">study91/book/[PACKAGE]/icon/</string> <!-- 图标文件路径 -->
+    <string name="image_path">study91/book/[PACKAGE]/image/</string> <!-- 图片文件路径 -->
 </resources>

@@ -1,9 +1,9 @@
-package com.study91.audiobook.book;
+package com.study91.audiobook.user;
 
 /**
- * 有声书数据接口
+ * 用户数据接口
  */
-public interface IBookData {
+public interface IUserData {
     /**
      * 获取数据源
      * @return 数据源

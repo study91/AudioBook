@@ -1,9 +1,8 @@
-package com.study91.audiobook.book;
+package com.study91.audiobook.user;
 
 import android.content.Context;
 
 import com.study91.audiobook.R;
-import com.study91.audiobook.system.SystemManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,16 +11,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * 有声书数据
+ * 用户数据
  */
-class BookData implements IBookData{
-    private Field m = new Field(); //私有字段
+class UserData implements IUserData {
+    private Field m = new Field(); //私有变量
 
     /**
      * 构造器
+     * @param context 应用程序上下文
      */
-    BookData() {
-        checkDatabase(); //检查数据库
+    UserData(Context context) {
+        m.context = context;
+        checkDatabase();
     }
 
     @Override
@@ -75,16 +76,16 @@ class BookData implements IBookData{
      * @return 应用程序上下文
      */
     private Context getContext() {
-        return SystemManager.getContext();
+        return m.context;
     }
 
     /**
-     * 获取Assert有声书数据源
-     * @return Assert有声书数据源
+     * 获取Assert用户数据源
+     * @return Assert用户数据源
      */
     private String getAssertDataSource() {
         if (m.assertDataSource == null) {
-            m.assertDataSource = getContext().getResources().getString(R.string.book_data_source);
+            m.assertDataSource = getContext().getResources().getString(R.string.user_data_source);
         }
 
         return m.assertDataSource;
@@ -111,6 +112,11 @@ class BookData implements IBookData{
      * 私有字段类
      */
     private class Field {
+        /**
+         * 应用程序上下文
+         */
+        Context context;
+
         /**
          * 有声书数据源
          */
