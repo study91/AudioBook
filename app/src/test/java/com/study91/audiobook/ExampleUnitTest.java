@@ -1,5 +1,10 @@
 package com.study91.audiobook;
 
+import android.util.Log;
+
+import com.study91.audiobook.data.DataSourceManager;
+import com.study91.audiobook.data.IDataSource;
+
 import org.junit.Test;
 
 import static org.junit.Assert.*;

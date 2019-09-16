@@ -6,6 +6,8 @@ import androidx.test.runner.AndroidJUnit4;
 
 import com.study91.audiobook.book.BookManager;
 import com.study91.audiobook.book.IBook;
+import com.study91.audiobook.data.DataSourceManager;
+import com.study91.audiobook.data.IDataSource;
 import com.study91.audiobook.user.IUser;
 import com.study91.audiobook.user.UserManager;
 
@@ -71,5 +73,17 @@ public class AudioBookTest {
         Log.d(TAG, "音乐音量=" + (int)(user.getMusicVolume() * 100) + "%");
         Log.d(TAG, "语音循环模式=" + user.getAudioLoopMode().getString());
         Log.d(TAG, "音乐循环模式=" + user.getMusicLoopMode().getString());
+    }
+
+    /**
+     * 测试数据源
+     */
+    @Test
+    private void testDataSource() {
+        IDataSource dataSource = DataSourceManager.getBookDataSource();
+        Log.d(TAG, "有声书数据源=" + dataSource.getDataSource());
+
+        dataSource = DataSourceManager.getUserDataSource();
+        Log.d(TAG, "用户数据源=" + dataSource.getDataSource());
     }
 }
