@@ -2,8 +2,11 @@ package com.study91.audiobook.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.study91.audiobook.R;
 import com.study91.audiobook.book.BookManager;
@@ -22,13 +25,26 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "AudioBookTest";
+    private UI ui = new UI();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        testBook();
+        BookManager.setBook(1);
+
+        ui.showPageButton = (Button) findViewById(R.id.showPageButton);
+        ui.showPageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PageActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+//        testBook();
 //        testUser();
 //        testDataSource();
     }
@@ -78,6 +94,10 @@ public class MainActivity extends AppCompatActivity {
         testBookPage(book.getPages());
     }
 
+    /**
+     * 测试有声书目录
+     * @param catalogs 目录集合
+     */
     private void testBookCatalog(List<IBookCatalog> catalogs) {
         Log.d(TAG, "****** 测试有声书目录 ******");
         for (IBookCatalog catalog : catalogs) {
@@ -111,5 +131,12 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "音乐音量=" + (int)(user.getMusicVolume() * 100) + "%");
         Log.d(TAG, "语音循环模式=" + user.getAudioLoopMode().getString());
         Log.d(TAG, "音乐循环模式=" + user.getMusicLoopMode().getString());
+    }
+
+    /**
+     * 私有界面类
+     */
+    private class UI {
+        Button showPageButton;
     }
 }
