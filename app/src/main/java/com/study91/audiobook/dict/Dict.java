@@ -2,10 +2,10 @@ package com.study91.audiobook.dict;
 
 import android.database.Cursor;
 
-import com.study91.audiobook.book.BookManager;
-import com.study91.audiobook.book.IBookData;
 import com.study91.audiobook.data.DataManager;
+import com.study91.audiobook.data.DataSourceManager;
 import com.study91.audiobook.data.IData;
+import com.study91.audiobook.data.IDataSource;
 
 /**
  * 字典
@@ -25,8 +25,8 @@ class Dict implements IDict {
         Cursor cursor = null; //数据指针
 
         try {
-            IBookData bookData = BookManager.getBookData(); //获取有声书数据
-            data = DataManager.createData(bookData.getDataSource()); //数据对象
+            IDataSource dataSource = DataSourceManager.getBookDataSource(); //获取有声书数据源
+            data = DataManager.createData(dataSource.getDataSource()); //数据对象
 
             //查询字符串
             String sql = "SELECT * FROM [Dict] " +

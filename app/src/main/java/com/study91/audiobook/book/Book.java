@@ -6,7 +6,9 @@ import android.graphics.drawable.Drawable;
 
 import com.study91.audiobook.R;
 import com.study91.audiobook.data.DataManager;
+import com.study91.audiobook.data.DataSourceManager;
 import com.study91.audiobook.data.IData;
+import com.study91.audiobook.data.IDataSource;
 import com.study91.audiobook.dict.ContentType;
 import com.study91.audiobook.dict.DictManager;
 import com.study91.audiobook.dict.FullMode;
@@ -16,6 +18,7 @@ import com.study91.audiobook.dict.SoundType;
 import com.study91.audiobook.system.SystemManager;
 import com.study91.audiobook.tools.ImageTools;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -195,12 +198,72 @@ class Book implements IBook {
 
     @Override
     public List<IBookCatalog> getCatalogs() {
-        return null;
+        if (m.catalogs == null) {
+            IData data = null;
+            Cursor cursor = null;
+
+            try {
+                IDataSource dataSource = DataSourceManager.getBookDataSource(); //获取数据源
+                data = DataManager.createData(dataSource.getDataSource()); //创建数据对象
+
+                //查询字符串
+                String sql = "SELECT * FROM [BookCatalog] " +
+                        "WHERE [BookID] = " + getBookID() + " " +
+                        "ORDER BY [Index]";
+
+                cursor = data.query(sql); //查询数据
+
+                if (cursor.getCount() > 0) {
+                    m.catalogs = new ArrayList<>(); //实例化目录列表
+
+                    //遍历目录并添加到目录列表
+                    for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                        IBookCatalog catalog = BookManager.createCatalog(cursor);
+                        m.catalogs.add(catalog); //添加到集合
+                    }
+                }
+            } finally {
+                if(cursor != null) cursor.close(); //关闭数据指针
+                if(data != null) data.close(); //关闭数据对象
+            }
+        }
+
+        return m.catalogs;
     }
 
     @Override
     public List<IBookPage> getPages() {
-        return null;
+        if (m.pages == null) {
+            IData data = null;
+            Cursor cursor = null;
+
+            try {
+                IDataSource dataSource = DataSourceManager.getBookDataSource(); //获取数据源
+                data = DataManager.createData(dataSource.getDataSource()); //创建数据对象
+
+                //查询字符串
+                String sql = "SELECT * FROM [BookPage] " +
+                        "WHERE [BookID] = " + getBookID() + " " +
+                        "ORDER BY [PageNumber]";
+
+                cursor = data.query(sql); //查询数据
+
+                if (cursor.getCount() > 0) {
+                    m.pages = new ArrayList<>(); //实例化页列表
+
+                    //遍历页并添加到页列表
+                    for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                        IBookPage page = BookManager.createPage(cursor); //创建页
+                        m.pages.add(page); //添加到集合
+                    }
+                }
+            } finally {
+                if(cursor != null) cursor.close(); //关闭数据指针
+                if(data != null) data.close(); //关闭数据对象
+            }
+        }
+
+        return m.pages;
     }
 
     /**
@@ -212,8 +275,8 @@ class Book implements IBook {
         Cursor cursor = null; //数据指针
 
         try {
-            IBookData bookData = BookManager.getBookData(); //获取有声书数据
-            data = DataManager.createData(bookData.getDataSource()); //创建数据对象
+            IDataSource dataSource = DataSourceManager.getBookDataSource(); //获取有声书数据源
+            data = DataManager.createData(dataSource.getDataSource()); //创建数据对象
 
             //查询字符串
             String sql = "SELECT * FROM [Book] WHERE [BookID] = " + bookID;
@@ -257,7 +320,6 @@ class Book implements IBook {
 
     /**
      * 获取应用程序上下文
-     *
      * @return 应用程序上下文
      */
     private Context getContext() {

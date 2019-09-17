@@ -3,7 +3,9 @@ package com.study91.audiobook.user;
 import android.database.Cursor;
 
 import com.study91.audiobook.data.DataManager;
+import com.study91.audiobook.data.DataSourceManager;
 import com.study91.audiobook.data.IData;
+import com.study91.audiobook.data.IDataSource;
 import com.study91.audiobook.dict.LoopMode;
 
 /**
@@ -89,8 +91,8 @@ class User implements IUser {
         Cursor cursor = null; //数据指针
 
         try {
-            IUserData userData = UserManager.getUserData(); //获取用户数据
-            data = DataManager.createData(userData.getDataSource()); //创建数据对象
+            IDataSource dataSource = DataSourceManager.getUserDataSource(); //获取用户数据源
+            data = DataManager.createData(dataSource.getDataSource()); //创建数据对象
             String sql = "SELECT * FROM [User] WHERE [UserID] = " + userID; //查询字符串
             cursor = data.query(sql);
 

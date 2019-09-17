@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 
+import com.study91.audiobook.system.SystemManager;
+
 import java.io.IOException;
 import java.io.InputStream;
 
