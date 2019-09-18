@@ -33,6 +33,7 @@ class Book implements IBook {
      */
     Book(int bookID) {
         load(bookID); //载入
+        checkCurrentAudio(); //检查当前语音
     }
 
     @Override
@@ -123,6 +124,21 @@ class Book implements IBook {
     @Override
     public boolean syncEnable() {
         return m.syncEnable;
+    }
+
+    @Override
+    public void setCurrentAudio(IBookCatalog catalog) {
+        //只有目录索引和当前语音目录索引不相同时，才重新设置当前语音目录
+        if (catalog.getIndex() != getCurrentAudioIndex()) {
+            m.currentAudioIndex = catalog.getIndex(); //重置当前语音目录索引
+            m.currentAudio = catalog; //重置当前语音目录
+            updateCurrentAudio(); //更新当前语音
+        }
+    }
+
+    @Override
+    public IBookCatalog getCurrentAudio() {
+        return m.currentAudio;
     }
 
     @Override
@@ -320,6 +336,69 @@ class Book implements IBook {
      */
     private Context getContext() {
         return SystemManager.getContext();
+    }
+
+    /**
+     * 获取当前语音索引
+     * @return 当前语音索引
+     */
+    private int getCurrentAudioIndex() {
+        return m.currentAudioIndex;
+    }
+
+    /**
+     * 检查当前语音目录
+     */
+    private void checkCurrentAudio() {
+        IBookCatalog firstAudio = null; //定义目录变量（用于存储第一个语音目录）
+
+        List<IBookCatalog> catalogs = getCatalogs(); //获取目录列表
+        for (IBookCatalog catalog : catalogs) {
+            if (catalog.hasAudio() && catalog.allowPlayAudio()) {
+                //将找到的第一个语音目录赋值给变量firstAudio暂存
+                if(firstAudio == null) firstAudio = catalog;
+
+                //如果找到当前语音目录，退出遍历
+                if (catalog.getIndex() == getCurrentAudioIndex()) {
+                    m.currentAudio = catalog;
+                    break;
+                }
+            }
+        }
+
+        //如果遍历结束仍未找到当前语音目录时将第一个语音赋值给当前语音目录
+        if (m.currentAudio == null) {
+            m.currentAudio = firstAudio;
+            updateCurrentAudio(); //更新当前语音
+        }
+    }
+
+    /**
+     * 更新当前语音
+     */
+    private void updateCurrentAudio() {
+        //创建线程更新当前语音
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                IData data = null; //数据对象
+
+                try {
+                    IDataSource dataSource = DataSourceManager.getBookDataSource(); //获取数据源
+                    data = DataManager.createData(dataSource.getDataSource()); //创建数据对象
+
+                    //更新数据库
+                    String sql = "UPDATE [Book] " +
+                            "SET [CurrentAudio] = " + getCurrentAudioIndex() + " " +
+                            "WHERE [BookID] = " + getBookID();
+                    data.execute(sql); //执行更新
+                } finally {
+                    if(data != null) data.close(); //关闭数据对象
+                }
+            }
+        });
+
+        thread.start();
     }
 
     /**

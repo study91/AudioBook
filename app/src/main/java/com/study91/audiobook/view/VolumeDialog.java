@@ -20,7 +20,6 @@ import com.study91.audiobook.user.UserManager;
  * 音量对话框类
  */
 class VolumeDialog extends Dialog {
-    private final String TAG = "VolumeDialog";
     private Field m = new Field(); //私有变量
     private UI ui = new UI(); //界面
 

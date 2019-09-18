@@ -124,13 +124,13 @@ public interface IBook {
      * 设置当前语音目录
      * @param catalog 语音目录
      */
-    //void setCurrentAudio(IBookCatalog catalog);
+    void setCurrentAudio(IBookCatalog catalog);
 
     /**
      * 获取当前语音目录
      * @return 当前语音目录
      */
-    //IBookCatalog getCurrentAudio();
+    IBookCatalog getCurrentAudio();
 
     /**
      * 获取当前语音页
