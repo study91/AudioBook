@@ -1,0 +1,3 @@
+<resources>
+    <integer name="user_id">1</integer> <!-- 用户ID -->
+</resources>

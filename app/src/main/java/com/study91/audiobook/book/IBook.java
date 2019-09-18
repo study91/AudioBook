@@ -100,7 +100,7 @@ public interface IBook {
     /**
      * 移动到下一个语音目录
      */
-//    void moveToNextAudio();
+    void moveToNextAudio();
 
     /**
      * 设置复读起点目录
@@ -112,7 +112,7 @@ public interface IBook {
      * 获取复读起点目录
      * @return 复读起点目录
      */
-    //IBookCatalog getFirstAudio();
+    IBookCatalog getFirstAudio();
 
     /**
      * 获取上一个语音目录
@@ -155,7 +155,7 @@ public interface IBook {
      * 获取复读终点目录
      * @return 复读终点目录
      */
-    //IBookCatalog getLastAudio();
+    IBookCatalog getLastAudio();
 
     /**
      * 重置语音播放开关

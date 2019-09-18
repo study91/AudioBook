@@ -127,6 +127,43 @@ class Book implements IBook {
     }
 
     @Override
+    public void moveToNextAudio() {
+        if (getCurrentAudioIndex() == getLastAudio().getIndex()) {
+            //当前语音目录是复读终点时，将复读起点设置为当前语音目录
+            setCurrentAudio(getFirstAudio());
+        } else  if (getFirstAudio().getIndex() != getLastAudio().getIndex()) {
+            //复读起点和复读终点不相同时，遍历查找下一个语音目录
+            List<IBookCatalog> catalogs = getCatalogs();
+            for (IBookCatalog catalog : catalogs) {
+                if (catalog.getIndex() > getCurrentAudioIndex() &&
+                        catalog.hasAudio() &&
+                        catalog.allowPlayAudio()) {
+                    setCurrentAudio(catalog); //设置为当前语音目录
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public IBookCatalog getFirstAudio() {
+        //如果第一个语音目录为空，遍历查找第一个语音目录
+        if (m.firstAudio == null) {
+            List<IBookCatalog> catalogs = getCatalogs(); //获取目录列表
+
+            for (IBookCatalog catalog : catalogs) {
+                //查找到第一个语音时退出遍历
+                if (catalog.hasAudio() && catalog.allowPlayAudio()) {
+                    m.firstAudio = catalog;
+                    break;
+                }
+            }
+        }
+
+        return m.firstAudio;
+    }
+
+    @Override
     public void setCurrentAudio(IBookCatalog catalog) {
         //只有目录索引和当前语音目录索引不相同时，才重新设置当前语音目录
         if (catalog.getIndex() != getCurrentAudioIndex()) {
@@ -139,6 +176,26 @@ class Book implements IBook {
     @Override
     public IBookCatalog getCurrentAudio() {
         return m.currentAudio;
+    }
+
+    @Override
+    public IBookCatalog getLastAudio() {
+        //如果最后一个语音目录为空，遍历查找最后一个语音目录
+        if (m.lastAudio == null) {
+            List<IBookCatalog> catalogs = getCatalogs(); //获取目录列表
+
+            for (int i = catalogs.size() - 1; i > 0; i--) {
+                IBookCatalog catalog = catalogs.get(i); //目录
+
+                //查找到最后一个语音时退出遍历
+                if (catalog.hasAudio() && catalog.allowPlayAudio()) {
+                    m.lastAudio = catalog;
+                    break;
+                }
+            }
+        }
+
+        return m.lastAudio;
     }
 
     @Override
@@ -350,14 +407,9 @@ class Book implements IBook {
      * 检查当前语音目录
      */
     private void checkCurrentAudio() {
-        IBookCatalog firstAudio = null; //定义目录变量（用于存储第一个语音目录）
-
         List<IBookCatalog> catalogs = getCatalogs(); //获取目录列表
         for (IBookCatalog catalog : catalogs) {
             if (catalog.hasAudio() && catalog.allowPlayAudio()) {
-                //将找到的第一个语音目录赋值给变量firstAudio暂存
-                if(firstAudio == null) firstAudio = catalog;
-
                 //如果找到当前语音目录，退出遍历
                 if (catalog.getIndex() == getCurrentAudioIndex()) {
                     m.currentAudio = catalog;
@@ -366,9 +418,9 @@ class Book implements IBook {
             }
         }
 
-        //如果遍历结束仍未找到当前语音目录时将第一个语音赋值给当前语音目录
+        //如果遍历结束仍未找到当前语音目录时将复读起点设置为当前语音目录
         if (m.currentAudio == null) {
-            m.currentAudio = firstAudio;
+            setCurrentAudio(getFirstAudio()); //设置复读起点为当前语音目录
             updateCurrentAudio(); //更新当前语音
         }
     }

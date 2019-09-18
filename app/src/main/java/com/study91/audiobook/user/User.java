@@ -1,13 +1,13 @@
 package com.study91.audiobook.user;
 
 import android.database.Cursor;
+import android.util.Log;
 
 import com.study91.audiobook.data.DataManager;
 import com.study91.audiobook.data.DataSourceManager;
 import com.study91.audiobook.data.IData;
 import com.study91.audiobook.data.IDataSource;
 import com.study91.audiobook.dict.LoopMode;
-import com.study91.audiobook.system.SystemManager;
 
 /**
  * 用户类
@@ -22,6 +22,7 @@ class User implements IUser {
     User(int userID) {
         load(userID); //载入
         checkBookID(); //检查有声书ID
+        Log.d("Test", "用户名：" + getUserName());
     }
 
     @Override
@@ -103,7 +104,7 @@ class User implements IUser {
     }
 
     /**
-     * 载入
+     * 载入用户数据
      * @param userID 用户ID
      */
     private void load(int userID) {
@@ -114,29 +115,48 @@ class User implements IUser {
             IDataSource dataSource = DataSourceManager.getUserDataSource(); //获取用户数据源
             data = DataManager.createData(dataSource.getDataSource()); //创建数据对象
             String sql = "SELECT * FROM [User] WHERE [UserID] = " + userID; //查询字符串
-            cursor = data.query(sql);
+            cursor = data.query(sql); //执行查询
 
             if (cursor.getCount() == 1) {
-                cursor.moveToFirst();
-                m.userID = userID;
-                m.userName = cursor.getString(cursor.getColumnIndex("UserName")); //用户名
-                m.isTest = cursor.getInt(cursor.getColumnIndex("IsTest")) != 0; //是否测试用户
-                m.bookID = cursor.getInt(cursor.getColumnIndex("BookID")); //有声书ID
-                m.audioVolume = cursor.getFloat(cursor.getColumnIndex("AudioVolume")); //语音音量
-                m.musicVolume = cursor.getFloat(cursor.getColumnIndex("MusicVolume")); //背景音乐音量
+                //如果有用户数据，载入用户数据
+                cursor.moveToFirst(); //移动到首记录
+                load(cursor); //载入数据
+            } else {
+                //如果没有找到用户，查询用户数据库中的第一个用户数据并载入数据
+                sql = "SELECT * FROM [User] ORDER BY [UserID] LIMIT 0,1"; //查询第一条记录的字符串
+                cursor = data.query(sql); //执行查询
 
-                //语音循环模式
-                int audioLoopMode = cursor.getInt(cursor.getColumnIndex("AudioLoopMode"));
-                m.audioLoopMode = LoopMode.values()[audioLoopMode];
-
-                //音乐循环模式
-                int musicLoopMode = cursor.getInt(cursor.getColumnIndex("MusicLoopMode"));
-                m.musicLoopMode = LoopMode.values()[musicLoopMode];
+                if (cursor.getCount() == 1) {
+                    //如果有用户数据，载入用户数据
+                    cursor.moveToFirst(); //移动到首记录
+                    load(cursor); //载入数据
+                }
             }
         } finally {
             if(cursor != null) cursor.close(); //关闭数据指针
             if(data != null) data.close(); //关闭数据对象
         }
+    }
+
+    /**
+     * 载入用户数据
+     * @param cursor 数据指针
+     */
+    private void load(Cursor cursor) {
+        m.userID = cursor.getInt(cursor.getColumnIndex("UserID")); //用户ID
+        m.userName = cursor.getString(cursor.getColumnIndex("UserName")); //用户名
+        m.isTest = cursor.getInt(cursor.getColumnIndex("IsTest")) != 0; //是否测试用户
+        m.bookID = cursor.getInt(cursor.getColumnIndex("BookID")); //有声书ID
+        m.audioVolume = cursor.getFloat(cursor.getColumnIndex("AudioVolume")); //语音音量
+        m.musicVolume = cursor.getFloat(cursor.getColumnIndex("MusicVolume")); //背景音乐音量
+
+        //语音循环模式
+        int audioLoopMode = cursor.getInt(cursor.getColumnIndex("AudioLoopMode"));
+        m.audioLoopMode = LoopMode.values()[audioLoopMode];
+
+        //音乐循环模式
+        int musicLoopMode = cursor.getInt(cursor.getColumnIndex("MusicLoopMode"));
+        m.musicLoopMode = LoopMode.values()[musicLoopMode];
     }
 
     /**
@@ -154,7 +174,7 @@ class User implements IUser {
 
             if (cursor.getCount() == 0) {
                 //如果没有查询到有声书ID，重新查询有声书的第一条记录，并将第一条记录的BookID作为有声书ID
-                sql = "SELECT [BookID] FROM [Book] WHERE [BookID] LIMIT 0,1"; //查询第一条记录的字符串
+                sql = "SELECT [BookID] FROM [Book] ORDER BY [BookID] LIMIT 0,1"; //查询第一条记录的字符串
                 cursor = data.query(sql); //执行查询
 
                 if (cursor.getCount() == 1) {
