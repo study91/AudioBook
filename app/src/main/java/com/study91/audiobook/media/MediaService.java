@@ -14,19 +14,14 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
 
 import com.study91.audiobook.R;
-import com.study91.audiobook.book.IBook;
-import com.study91.audiobook.book.IBookCatalog;
 import com.study91.audiobook.dict.ReceiverAction;
-import com.study91.audiobook.system.IUser;
-import com.study91.audiobook.system.SystemManager;
 import com.study91.audiobook.tools.MediaTools;
-import com.study91.audiobook.ui.MainActivity;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -51,28 +46,28 @@ public class MediaService extends Service {
         registerPhoneStateListener(); //注册电话状态监听器
         registerHeadsetPlugReceiver(); //注册耳机广播接收器
 
-        //初始化当前打开的书
-        IUser user = SystemManager.getUser(this); //获取全局用户
-        getMediaPlayer().setAudioVolume(user.getAudioVolume()); //设置媒体播放器语音音量
-        getMediaPlayer().setMusicVolume(user.getMusicVolume()); //设置媒体播放器音乐音量
-
-        IBook book = user.getCurrentBook(); //获取当前打开的书
-        IBookCatalog currentAudio = book.getCurrentAudio(); //获取当前语音目录
-
-        Log.d("Test", "书：" + book.getBookName());
-        if (currentAudio == null) {
-            Log.d("Test", "当前语音为空");
-        } else {
-            Log.d("Test", "书：" + book.getBookName());
-            Log.d("Test", "语音目录：" + currentAudio.getTitle());
-        }
-
-        //设置语音文件
-        getMediaPlayer().setAudioFile(
-                currentAudio.getAudioFilename(),
-                currentAudio.getTitle(),
-                currentAudio.getIconFilename());
-        getMediaPlayer().setSoundType(book.getSoundType());
+        //TODO 初始化当前打开的书
+//        IUser user = UserManager.getUser(); //获取全局用户
+//        getMediaPlayer().setAudioVolume(user.getAudioVolume()); //设置媒体播放器语音音量
+//        getMediaPlayer().setMusicVolume(user.getMusicVolume()); //设置媒体播放器音乐音量
+//
+//        IBook book = BookManager.getBook(); //获取当前打开的书
+//        IBookCatalog currentAudio = book.getCurrentAudio(); //获取当前语音目录
+//
+//        Log.d("Test", "书：" + book.getBookName());
+//        if (currentAudio == null) {
+//            Log.d("Test", "当前语音为空");
+//        } else {
+//            Log.d("Test", "书：" + book.getBookName());
+//            Log.d("Test", "语音目录：" + currentAudio.getTitle());
+//        }
+//
+//        //设置语音文件
+//        getMediaPlayer().setAudioFile(
+//                currentAudio.getAudioFilename(),
+//                currentAudio.getTitle(),
+//                currentAudio.getIconFilename());
+//        getMediaPlayer().setSoundType(book.getSoundType());
     }
 
     @Override
@@ -98,30 +93,30 @@ public class MediaService extends Service {
                 }
             });
 
-            //设置播放完成事件监听器
-            m.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    stopTimer(); //停止定时器
-
-                    //获取全局书
-                    IBook currentBook = SystemManager.getUser(
-                            getApplicationContext()).getCurrentBook();
-
-                    currentBook.moveToNextAudio(); //移动到下一个语音目录
-                    IBookCatalog currentAudio = currentBook.getCurrentAudio(); //获取当前语音
-
-                    //设置语音文件
-                    m.mediaPlayer.setAudioFile(
-                            currentAudio.getAudioFilename(),
-                            currentAudio.getTitle(),
-                            currentAudio.getIconFilename());
-
-                    m.mediaPlayer.play(); //播放
-                    refresh(); //刷新
-                    startTimer(); //启动定时器
-                }
-            });
+            //TODO 设置播放完成事件监听器
+//            m.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//                @Override
+//                public void onCompletion(MediaPlayer mp) {
+//                    stopTimer(); //停止定时器
+//
+//                    //获取全局书
+//                    IBook currentBook = SystemManager.getUser(
+//                            getApplicationContext()).getCurrentBook();
+//
+//                    currentBook.moveToNextAudio(); //移动到下一个语音目录
+//                    IBookCatalog currentAudio = currentBook.getCurrentAudio(); //获取当前语音
+//
+//                    //设置语音文件
+//                    m.mediaPlayer.setAudioFile(
+//                            currentAudio.getAudioFilename(),
+//                            currentAudio.getTitle(),
+//                            currentAudio.getIconFilename());
+//
+//                    m.mediaPlayer.play(); //播放
+//                    refresh(); //刷新
+//                    startTimer(); //启动定时器
+//                }
+//            });
         }
 
         return m.mediaPlayer;
@@ -232,7 +227,7 @@ public class MediaService extends Service {
         }
 
         //创建Intent
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, MainActivity_old.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
 
         //创建PendingIntent

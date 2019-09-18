@@ -25,7 +25,7 @@
 
         <!-- 页活动 -->
         <activity
-            android:name=".ui.PageActivity"
+            android:name=".ui.PageActivity_old"
             android:launchMode="singleTask"/>
     </application>
 </manifest>

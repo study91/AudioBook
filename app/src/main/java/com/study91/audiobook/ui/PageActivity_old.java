@@ -13,7 +13,7 @@ import com.study91.audiobook.view.BookImageViewPager;
 /**
  * 有声书页活动
  */
-public class PageActivity extends AppCompatActivity {
+public class PageActivity_old extends AppCompatActivity {
     private UI ui = new UI(); //私有界面
 
     @Override
