@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.Window;
 import android.widget.RelativeLayout;
 
 import com.study91.audiobook.R;
@@ -18,8 +19,8 @@ public class PageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_page);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //设置为竖屏显示
+        setContentView(R.layout.activity_page);
 
         //载入控件
         ui.fullLayout = (RelativeLayout) findViewById(R.id.fullLayout); //全屏布局

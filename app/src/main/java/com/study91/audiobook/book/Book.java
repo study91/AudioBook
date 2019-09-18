@@ -138,11 +138,7 @@ class Book implements IBook {
 
     @Override
     public Drawable getCoverDrawable() {
-        if (m.coverDrawable == null) {
-            m.coverDrawable = ImageTools.getDrawable(getContext(), getCoverFilename());
-        }
-
-        return m.coverDrawable;
+        return ImageTools.getDrawable(getContext(), getCoverFilename());
     }
 
     @Override
@@ -454,11 +450,6 @@ class Book implements IBook {
          * 封面图片文件名
          */
         String coverFilename;
-
-        /**
-         * 封面Drawable
-         */
-        Drawable coverDrawable;
 
         /**
          * 图标Drawable

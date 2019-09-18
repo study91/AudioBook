@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.study91.audiobook">
 
-    <!-- 解决内存溢出问题：添加 android:largeHeap="true" 申请更多内存，暂时解决方案-->
+    <!-- 解决内存溢出问题：添加 android:largeHeap="true" 申请更多内存，暂时解决方案 -->
     <application
         android:name=".system.SystemManager"
         android:largeHeap="true"

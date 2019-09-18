@@ -60,11 +60,7 @@ class BookPage implements IBookPage {
 
     @Override
     public Drawable getImageDrawable() {
-        if (m.imageDrawable == null) {
-            m.imageDrawable = ImageTools.getDrawable(getContext(), getImageFilename());
-        }
-
-        return m.imageDrawable;
+        return ImageTools.getDrawable(getContext(), getImageFilename());
     }
 
     @Override
@@ -80,11 +76,7 @@ class BookPage implements IBookPage {
 
     @Override
     public Drawable getIconDrawable() {
-        if (m.iconDrawable == null) {
-            m.iconDrawable = ImageTools.getDrawable(getContext(), getIconFilename());
-        }
-
-        return m.iconDrawable;
+        return ImageTools.getDrawable(getContext(), getIconFilename());
     }
 
     @Override
@@ -177,16 +169,6 @@ class BookPage implements IBookPage {
          * 图片文件名
          */
         String imageFilename;
-
-        /**
-         * 图片Drawable
-         */
-        Drawable imageDrawable;
-
-        /**
-         * 图标Drawable
-         */
-        Drawable iconDrawable;
 
         /**
          * 是否有语音

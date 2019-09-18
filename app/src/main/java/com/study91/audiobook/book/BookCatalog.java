@@ -117,11 +117,7 @@ class BookCatalog implements IBookCatalog {
 
     @Override
     public Drawable getIconDrawable() {
-        if (m.iconDrawable == null) {
-            m.iconDrawable = ImageTools.getDrawable(getContext(), getIconFilename());
-        }
-
-        return m.iconDrawable;
+        return ImageTools.getDrawable(getContext(), getIconFilename());
     }
 
     @Override
@@ -250,11 +246,6 @@ class BookCatalog implements IBookCatalog {
          * 图标文件名
          */
         String iconFilename;
-
-        /**
-         * 图标Drawable
-         */
-        Drawable iconDrawable;
 
         /**
          * 熟悉级别
