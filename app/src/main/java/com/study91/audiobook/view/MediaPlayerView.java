@@ -18,7 +18,7 @@ import com.study91.audiobook.book.IBook;
 import com.study91.audiobook.media.IBookMediaPlayer;
 import com.study91.audiobook.media.MediaClient;
 import com.study91.audiobook.tools.MediaTools;
-import com.study91.audiobook.ui.PageActivity_old;
+import com.study91.audiobook.ui.PageActivity;
 
 public class MediaPlayerView extends RelativeLayout {
     private UI ui = new UI(); //界面
@@ -76,7 +76,7 @@ public class MediaPlayerView extends RelativeLayout {
      * 显示页
      */
     private void showPage() {
-        Intent intent = new Intent(getContext(), PageActivity_old.class);
+        Intent intent = new Intent(getContext(), PageActivity.class);
         getContext().startActivity(intent);
     }
 
