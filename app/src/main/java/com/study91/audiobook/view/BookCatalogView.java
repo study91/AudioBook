@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,13 +44,14 @@ public class BookCatalogView extends RelativeLayout {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.view_catalog, this);
 
+        getMediaClient().register(); //注册媒体客户端
+        getMediaClient().setOnReceiver(new MediaClientBroadcastReceiver()); //设置广播接收器
+
         ui.listView = (ExpandableListView) findViewById(R.id.catalogListView); //获取列表视图
         ui.listView.setGroupIndicator(null); //去掉默认的下拉箭头图标
-        ui.listView.setAdapter(new CatalogViewAdapter()); //设置有声书目录视图适配器
+        ui.listView.setAdapter(getAdapter()); //设置有声书目录视图适配器
         ui.listView.setSelection(getBook().getCurrentAudio().getPosition()); //设置列表选择项
         ui.listView.setOnGroupExpandListener(new OnCatalogGroupExpandListener()); //列表项展开事件
-
-        getMediaClient().register(); //注册媒体客户端
     }
 
     @Override
@@ -75,6 +77,50 @@ public class BookCatalogView extends RelativeLayout {
     }
 
     /**
+     * 获取有声书目录视图适配器
+     * @return 有声书目录视图适配器
+     */
+    private CatalogViewAdapter getAdapter() {
+        if (m.adapter == null) {
+            m.adapter = new CatalogViewAdapter();
+        }
+
+        return m.adapter;
+    }
+
+    /**
+     * 设置当前目录ID
+     */
+    private void setCurrentAudioID(int catalogID) {
+        if (catalogID != getCurrentAudioID()) {
+            m.currentAudioID = catalogID;
+        }
+    }
+
+    /**
+     * 获取当前目录ID
+     */
+    private int getCurrentAudioID() {
+        return m.currentAudioID;
+    }
+
+    /**
+     * 设置是否正在播放
+     * @param isPlaying true=正在播放，false=没有播放
+     */
+    private void setIsPlaying(boolean isPlaying) {
+        m.isPlaying = isPlaying;
+    }
+
+    /**
+     * 是否正在播放
+     * @return true=正在播放，false=没有播放
+     */
+    private boolean isPlaying() {
+        return m.isPlaying;
+    }
+
+    /**
      * 获取媒体客户端
      * @return 媒体客户端
      */
@@ -84,6 +130,34 @@ public class BookCatalogView extends RelativeLayout {
         }
 
         return m.mediaClient;
+    }
+
+    /**
+     * 媒体客户端广播接收器
+     */
+    private class MediaClientBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean isRefresh = false; //是否刷新变量
+
+            //有声书索引和原索引不相同时，需要刷新目录
+            if (getCurrentAudioID() != getBook().getCurrentAudio().getCatalogID()) {
+                setCurrentAudioID(getBook().getCurrentAudio().getCatalogID());
+                isRefresh = true;
+            }
+
+            //播放状态发生变化时，需要刷新目录
+            IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer();
+            if (mediaPlayer != null && isPlaying() != mediaPlayer.isPlaying()) {
+                setIsPlaying(mediaPlayer.isPlaying());
+                isRefresh = true;
+            }
+
+            //刷新目录
+            if (isRefresh) {
+                getAdapter().notifyDataSetChanged();
+            }
+        }
     }
 
     /**
@@ -163,11 +237,16 @@ public class BookCatalogView extends RelativeLayout {
                 ui.group.playButton.setVisibility(View.INVISIBLE);
             }
 
+            //设置单击事件监听器
+            ui.group.playButton.setOnClickListener(new OnPlayButtonClickListener(catalog));
+
             //设置当前项背景色
-            if (catalog.getIndex() == getBook().getCurrentAudio().getIndex()) {
+            if (catalog.getCatalogID() == getBook().getCurrentAudio().getCatalogID()) {
                 view.setBackgroundResource(R.color.catalog_group_current); //设置背景色
                 ui.group.titleTextView.setEllipsize(TextUtils.TruncateAt.MARQUEE); //当前项标题设置为超长滚动
-                if (getMediaClient().getMediaPlayer().isPlaying()) { //播放状态
+
+                IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer();
+                if (mediaPlayer != null && mediaPlayer.isPlaying()) { //播放状态
                     ui.group.playButton.setBackgroundResource(R.drawable.catalog_group_pause); //暂停图标
                 } else { //暂停状态
                     ui.group.playButton.setBackgroundResource(R.drawable.catalog_group_play); //播放图标
@@ -176,16 +255,16 @@ public class BookCatalogView extends RelativeLayout {
 
             //设置循环播放图标
             if (catalog.hasAudio() && catalog.allowPlayAudio()) {
-                if (catalog.getIndex() == getBook().getFirstAudio().getIndex()) {
+                if (catalog.getCatalogID() == getBook().getFirstAudio().getCatalogID()) {
                     ui.group.loopImageView.setBackgroundResource(R.mipmap.catalog_group_loop_first); //复读起点语音图标
-                } else if (catalog.getIndex() == getBook().getLastAudio().getIndex()) {
+                } else if (catalog.getCatalogID() == getBook().getLastAudio().getCatalogID()) {
                     ui.group.loopImageView.setBackgroundResource(R.mipmap.catalog_group_loop_last); //复读终点语音图标
                 } else {
                     ui.group.loopImageView.setBackgroundResource(R.mipmap.catalog_group_loop_middle); //复读中间语音图标
                 }
 
                 //复读起点和复读终点相同时，不显示循环图标
-                if (getBook().getFirstAudio().getIndex() == getBook().getLastAudio().getIndex()) {
+                if (getBook().getFirstAudio().getCatalogID() == getBook().getLastAudio().getCatalogID()) {
                     ui.group.loopImageView.setVisibility(View.INVISIBLE); //不显示循环图标
                 }
             }
@@ -255,13 +334,85 @@ public class BookCatalogView extends RelativeLayout {
     }
 
     /**
+     * 播放按钮单击事件监听器
+     */
+    private class OnPlayButtonClickListener implements View.OnClickListener {
+        private Field m = new Field(); //私有字段
+
+        /**
+         * 构造器
+         * @param catalog 目录
+         */
+        OnPlayButtonClickListener(IBookCatalog catalog) {
+            m.catalog = catalog;
+        }
+
+        @Override
+        public void onClick(View v) {
+           IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer(); //获取媒体播放器
+            if (getCurrentAudioID() == getCatalog().getCatalogID()) {
+                //点击的是当前目录的播放按钮
+                if (isPlaying()) {
+                    mediaPlayer.pause(); //如果正在播放，就暂停播放
+                } else {
+                    mediaPlayer.play(); //如果暂停播放，就开始播放
+                }
+            } else {
+                //TODO 点击的不是当前目录的播放按钮（问题在这里）
+                Log.d("Test", "传入前的目录ID=" + getCatalog().getCatalogID() + "." + getCatalog().getTitle());
+                getBook().setCurrentAudio(getCatalog()); //重置当前语音目录
+
+                //重置媒体播放器语音文件并播放语音
+                mediaPlayer.setAudioFile(
+                        getCatalog().getAudioFilename(),
+                        getCatalog().getTitle(),
+                        getCatalog().getIconFilename());
+                mediaPlayer.play(); //播放当前语音
+            }
+        }
+
+        /**
+         * 获取目录
+         * @return 目录
+         */
+        private IBookCatalog getCatalog() {
+            return m.catalog;
+        }
+
+        /**
+         * 私有字段类
+         */
+        private class Field {
+            /**
+             * 书目录
+             */
+            IBookCatalog catalog;
+        }
+    }
+
+    /**
      * 私有字段类
      */
     private class Field {
         /**
+         * 有声书目录视图适配器
+         */
+        CatalogViewAdapter adapter;
+
+        /**
          * 媒体客户端
          */
         MediaClient mediaClient;
+
+        /**
+         * 是否正在播放
+         */
+        boolean isPlaying;
+
+        /**
+         * 当前语音目录ID
+         */
+        private int currentAudioID;
     }
 
     /**

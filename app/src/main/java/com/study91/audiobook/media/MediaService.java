@@ -73,8 +73,8 @@ public class MediaService extends Service {
 
     @Override
     public void onDestroy() {
-        stopTimer(); //停止定时器
         cancelNotification(); //取消通知
+        stopTimer(); //停止定时器
         unregisterHeadsetPlugReceiver(); //注销耳机广播接收器
         if(m.mediaPlayer != null) getMediaPlayer().release(); //释放书媒体播放器
         super.onDestroy();

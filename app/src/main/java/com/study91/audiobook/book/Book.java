@@ -3,6 +3,7 @@ package com.study91.audiobook.book;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import com.study91.audiobook.R;
 import com.study91.audiobook.data.DataManager;
@@ -128,14 +129,14 @@ class Book implements IBook {
 
     @Override
     public void moveToNextAudio() {
-        if (getCurrentAudioIndex() == getLastAudio().getIndex()) {
+        if (getCurrentAudioID() == getLastAudio().getCatalogID()) {
             //当前语音目录是复读终点时，将复读起点设置为当前语音目录
             setCurrentAudio(getFirstAudio());
-        } else  if (getFirstAudio().getIndex() != getLastAudio().getIndex()) {
+        } else  if (getFirstAudio().getCatalogID() != getLastAudio().getCatalogID()) {
             //复读起点和复读终点不相同时，遍历查找下一个语音目录
             List<IBookCatalog> catalogs = getCatalogs();
             for (IBookCatalog catalog : catalogs) {
-                if (catalog.getIndex() > getCurrentAudioIndex() &&
+                if (catalog.getCatalogID() > getCurrentAudioID() &&
                         catalog.hasAudio() &&
                         catalog.allowPlayAudio()) {
                     setCurrentAudio(catalog); //设置为当前语音目录
@@ -166,8 +167,10 @@ class Book implements IBook {
     @Override
     public void setCurrentAudio(IBookCatalog catalog) {
         //只有目录索引和当前语音目录索引不相同时，才重新设置当前语音目录
-        if (catalog.getIndex() != getCurrentAudioIndex()) {
-            m.currentAudioIndex = catalog.getIndex(); //重置当前语音目录索引
+        Log.d("Test", "传入后的目录ID=" + catalog.getCatalogID() + "." + catalog.getTitle());
+
+        if (catalog.getCatalogID() != getCurrentAudioID()) {
+            m.currentAudioID = catalog.getCatalogID(); //重置当前语音目录ID
             m.currentAudio = catalog; //重置当前语音目录
             updateCurrentAudio(); //更新当前语音
         }
@@ -378,7 +381,7 @@ class Book implements IBook {
                 m.titleLinkMode = LinkMode.values()[titleLinkMode]; //标题链接模式
                 m.iconLinkMode = LinkMode.values()[iconLinkMode]; //图标链接模式
 
-                m.currentAudioIndex = cursor.getInt(cursor.getColumnIndex("CurrentAudio")); //当前语音目录索引
+                m.currentAudioID = cursor.getInt(cursor.getColumnIndex("CurrentAudio")); //当前语音目录ID
                 m.currentPageNumber = cursor.getInt(cursor.getColumnIndex("CurrentPage")); //当前显示页码
             }
         } finally {
@@ -396,22 +399,23 @@ class Book implements IBook {
     }
 
     /**
-     * 获取当前语音索引
-     * @return 当前语音索引
+     * 获取当前语音目录ID
+     * @return 当前语音目录ID
      */
-    private int getCurrentAudioIndex() {
-        return m.currentAudioIndex;
+    private int getCurrentAudioID() {
+        return m.currentAudioID;
     }
 
     /**
      * 检查当前语音目录
      */
     private void checkCurrentAudio() {
+        //遍历查找当前语音目录
         List<IBookCatalog> catalogs = getCatalogs(); //获取目录列表
         for (IBookCatalog catalog : catalogs) {
             if (catalog.hasAudio() && catalog.allowPlayAudio()) {
                 //如果找到当前语音目录，退出遍历
-                if (catalog.getIndex() == getCurrentAudioIndex()) {
+                if (catalog.getCatalogID() == getCurrentAudioID()) {
                     m.currentAudio = catalog;
                     break;
                 }
@@ -441,7 +445,7 @@ class Book implements IBook {
 
                     //更新数据库
                     String sql = "UPDATE [Book] " +
-                            "SET [CurrentAudio] = " + getCurrentAudioIndex() + " " +
+                            "SET [CurrentAudio] = " + getCurrentAudio().getCatalogID() + " " +
                             "WHERE [BookID] = " + getBookID();
                     data.execute(sql); //执行更新
                 } finally {
@@ -548,9 +552,9 @@ class Book implements IBook {
         boolean syncEnable;
 
         /**
-         * 当前语音目录索引
+         * 当前语音目录ID
          */
-        int currentAudioIndex;
+        int currentAudioID;
 
         /**
          * 第一个语音目录
