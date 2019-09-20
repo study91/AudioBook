@@ -84,6 +84,7 @@ class AssetMediaPlayer implements IMediaPlayer {
                 break;
             case PREPARING: //媒体准备中
                 m.mediaState = MediaState.WAITING_TO_PLAY; //设置为等待播放状态
+                m.seekToPosition = 0;
                 break;
             case WAITING_TO_PLAY: //等待播放状态
                 //注：如果媒体处于等待播放状态，将在setOnPreparedListener.onPrepared中执行getMediaPlayer().start()进行播放
@@ -228,12 +229,6 @@ class AssetMediaPlayer implements IMediaPlayer {
             m.mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
-                    //如果播放位置大于0，先进行定位
-                    if (m.seekToPosition > 0) {
-                        m.mediaPlayer.seekTo(m.seekToPosition); //定位播放位置
-                        m.seekToPosition = 0; //播放位置复位
-                    }
-
                     switch (getMediaState()) {
                         case WAITING_TO_PLAY: //等待播放媒体
                             m.mediaState = MediaState.PREPARED; //设置媒体状态为准备就绪
@@ -253,10 +248,23 @@ class AssetMediaPlayer implements IMediaPlayer {
             m.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    m.mediaState = MediaState.COMPLETED; //设置媒体状态为播放完成
+                    switch (getMediaState()) {
+                        //此处疑似系统有Bug，在切换音频文件时，处于WAITING_TO_PLAY和PREPARING状态时有时会
+                        //莫名其秒的进入完成播放状态，因此这两种状态完成播放时不能执行自定义的媒体播放完成事件。
+                        case WAITING_TO_PLAY: //等待播放媒体
+                            Log.d("Test", "等待播放媒体时完成播放");
+                            break;
+                        case PREPARING: //准备媒体中
+                            Log.d("Test", "准备媒体中完成播放");
+                            break;
+                        default:
+                            Log.d("Test", "正常完成播放");
+                            m.mediaState = MediaState.COMPLETED; //设置媒体状态为播放完成
+                            //执行自定义的媒体播放完成事件
+                            if (m.completionListener != null) m.completionListener.onCompletion(mp);
+                            break;
+                    }
 
-                    //执行自定义的媒体播放完成事件
-                    if (m.completionListener != null) m.completionListener.onCompletion(mp);
                 }
             });
 

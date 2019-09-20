@@ -358,8 +358,6 @@ public class BookCatalogView extends RelativeLayout {
                     mediaPlayer.play(); //如果暂停播放，就开始播放
                 }
             } else {
-                //TODO 点击的不是当前目录的播放按钮（问题在这里）
-                Log.d("Test", "传入前的目录ID=" + getCatalog().getCatalogID() + "." + getCatalog().getTitle());
                 getBook().setCurrentAudio(getCatalog()); //重置当前语音目录
 
                 //重置媒体播放器语音文件并播放语音

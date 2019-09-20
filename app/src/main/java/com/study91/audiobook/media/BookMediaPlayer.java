@@ -24,7 +24,6 @@ class BookMediaPlayer implements IBookMediaPlayer {
     public void setAudioFile(String filename, String title, String iconFilename) {
         //媒体文件名有变化时才设置语音文件
         if (filename != null && !filename.trim().equals(getAudioMediaPlayer().getFilename())) {
-            if (getAudioMediaPlayer().isPlaying()) getAudioMediaPlayer().pause(); //如果正在播放，先暂停播放
             getAudioMediaPlayer().setFilename(filename); //设置语音文件名
             getAudioMediaPlayer().setIconFilename(iconFilename); //设置图标文件名
             getAudioMediaPlayer().setTitle(title); //设置标题

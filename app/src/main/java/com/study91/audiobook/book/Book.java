@@ -129,14 +129,14 @@ class Book implements IBook {
 
     @Override
     public void moveToNextAudio() {
-        if (getCurrentAudioID() == getLastAudio().getCatalogID()) {
+        if (getCurrentAudio().getCatalogID() == getLastAudio().getCatalogID()) {
             //当前语音目录是复读终点时，将复读起点设置为当前语音目录
             setCurrentAudio(getFirstAudio());
-        } else  if (getFirstAudio().getCatalogID() != getLastAudio().getCatalogID()) {
+        } else if (getFirstAudio().getCatalogID() != getLastAudio().getCatalogID()) {
             //复读起点和复读终点不相同时，遍历查找下一个语音目录
             List<IBookCatalog> catalogs = getCatalogs();
             for (IBookCatalog catalog : catalogs) {
-                if (catalog.getCatalogID() > getCurrentAudioID() &&
+                if (catalog.getIndex() > getCurrentAudio().getIndex() &&
                         catalog.hasAudio() &&
                         catalog.allowPlayAudio()) {
                     setCurrentAudio(catalog); //设置为当前语音目录
@@ -230,11 +230,7 @@ class Book implements IBook {
 
     @Override
     public Drawable getIconDrawable() {
-        if (m.iconDrawable == null) {
-            m.iconDrawable = ImageTools.getDrawable(getContext(), getCoverFilename());
-        }
-
-        return m.iconDrawable;
+        return ImageTools.getDrawable(getContext(), getCoverFilename());
     }
 
     @Override
