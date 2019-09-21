@@ -4,11 +4,17 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 
 import androidx.annotation.Nullable;
 
 import com.study91.audiobook.R;
+import com.study91.audiobook.book.BookManager;
+import com.study91.audiobook.book.IBookCatalog;
+import com.study91.audiobook.media.IBookMediaPlayer;
+import com.study91.audiobook.media.MediaClient;
 import com.study91.audiobook.media.MediaService;
 
 /**
@@ -16,6 +22,7 @@ import com.study91.audiobook.media.MediaService;
  */
 public class MainActivity extends Activity {
     private Field m = new Field(); //私有变量
+    private UI ui = new UI(); //私有界面
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -25,11 +32,29 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         startService(getMediaServiceIntent()); //启动媒体服务
+        getMediaClient().register(); //注册媒体客户端
+
+        ui.rjYuWen1aButton = (Button) findViewById(R.id.rjYuWen1aButton);
+        ui.rjYuWen1aButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playBook(1);
+            }
+        });
+
+        ui.rjYuWen1bButton = (Button) findViewById(R.id.rjYuWen1bButton);
+        ui.rjYuWen1bButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playBook(2);
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
         stopService(m.mediaServiceIntent); //停止媒体服务
+        getMediaClient().unregister(); //注销媒体客户端
         super.onDestroy();
     }
 
@@ -46,6 +71,34 @@ public class MainActivity extends Activity {
     }
 
     /**
+     * 获取媒体客户端
+     * @return 媒体客户端
+     */
+    MediaClient getMediaClient() {
+        if (m.mediaClient == null) {
+            m.mediaClient = new MediaClient(this);
+        }
+
+        return m.mediaClient;
+    }
+
+    /**
+     * 播放有声书
+     * @param bookID 有声书ID
+     */
+    private void playBook(int bookID) {
+        BookManager.setBook(bookID);
+        IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer();
+        IBookCatalog catalog = BookManager.getBook().getCurrentAudio();
+
+        mediaPlayer.setAudioFile(
+                catalog.getAudioFilename(),
+                catalog.getTitle(),
+                catalog.getIconFilename());
+        mediaPlayer.play();
+    }
+
+    /**
      * 私有字段类
      */
     private class Field {
@@ -53,5 +106,25 @@ public class MainActivity extends Activity {
          * 媒体服务Intent
          */
         Intent mediaServiceIntent;
+
+        /**
+         * 媒体客户端
+         */
+        MediaClient mediaClient;
+    }
+
+    /**
+     * 私有界面类
+     */
+    private class UI {
+        /**
+         * 人教一年级语文上册按钮
+         */
+        Button rjYuWen1aButton;
+
+        /**
+         * 人教一年级语文下册按钮
+         */
+        Button rjYuWen1bButton;
     }
 }

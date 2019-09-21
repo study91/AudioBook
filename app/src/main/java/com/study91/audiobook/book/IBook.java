@@ -173,13 +173,13 @@ public interface IBook {
      * 设置当前页
      * @param page 页
      */
-    //void setCurrentPage(IBookPage page);
+    void setCurrentPage(IBookPage page);
 
     /**
      * 获取当前页
      * @return 当前页
      */
-    //IBookPage getCurrentPage();
+    IBookPage getCurrentPage();
 
     /**
      * 获取封面文件名

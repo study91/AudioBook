@@ -24,8 +24,9 @@ public class BookImageViewPager extends ViewPager {
      */
     public BookImageViewPager(@NonNull Context context) {
         super(context);
+
         setAdapter(new BookImageViewPagerAdapter()); //设置适配器
-        setCurrentItem(0); //TODO 设置当前页，暂时设为第一页
+        setCurrentItem(getBook().getCurrentPage().getPosition()); //设置当前页
     }
 
     /**

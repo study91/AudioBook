@@ -3,7 +3,6 @@ package com.study91.audiobook.book;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import com.study91.audiobook.R;
 import com.study91.audiobook.data.DataManager;
@@ -35,6 +34,7 @@ class Book implements IBook {
     Book(int bookID) {
         load(bookID); //载入
         checkCurrentAudio(); //检查当前语音
+        checkCurrentPage(); //检查当前页
     }
 
     @Override
@@ -167,8 +167,6 @@ class Book implements IBook {
     @Override
     public void setCurrentAudio(IBookCatalog catalog) {
         //只有目录索引和当前语音目录索引不相同时，才重新设置当前语音目录
-        Log.d("Test", "传入后的目录ID=" + catalog.getCatalogID() + "." + catalog.getTitle());
-
         if (catalog.getCatalogID() != getCurrentAudioID()) {
             m.currentAudioID = catalog.getCatalogID(); //重置当前语音目录ID
             m.currentAudio = catalog; //重置当前语音目录
@@ -199,6 +197,21 @@ class Book implements IBook {
         }
 
         return m.lastAudio;
+    }
+
+    @Override
+    public void setCurrentPage(IBookPage page) {
+        //只有页参数的页码和当前页码不相同时，才重新设置当前页
+        if (page.getPageNumber() != getCurrentPageNumber()) {
+            m.currentPageNumber = page.getPageNumber(); //重置当前页码
+            m.currentPage = page; //重置当前页
+            updateCurrentPage(); //更新当前页
+        }
+    }
+
+    @Override
+    public IBookPage getCurrentPage() {
+        return m.currentPage;
     }
 
     @Override
@@ -403,6 +416,14 @@ class Book implements IBook {
     }
 
     /**
+     * 获取当前页码
+     * @return 当前页码
+     */
+    private int getCurrentPageNumber() {
+        return m.currentPageNumber;
+    }
+
+    /**
      * 检查当前语音目录
      */
     private void checkCurrentAudio() {
@@ -426,6 +447,27 @@ class Book implements IBook {
     }
 
     /**
+     * 检查当前页
+     */
+    private void checkCurrentPage() {
+        //遍历查找当前页
+        List<IBookPage> pages = getPages(); //获取页列表
+        for (IBookPage page : pages) {
+            //如果找到当前页，退出遍历
+            if (page.getPageNumber() == getCurrentPageNumber()) {
+                m.currentPage = page;
+                break;
+            }
+        }
+
+        //如果遍历结束仍未找到当前页时将第一页设置为当前页
+        if (m.currentPage == null) {
+            setCurrentPage(pages.get(0)); //设置第一页为当前页
+            updateCurrentPage(); //更新当前页
+        }
+    }
+
+    /**
      * 更新当前语音
      */
     private void updateCurrentAudio() {
@@ -442,6 +484,34 @@ class Book implements IBook {
                     //更新数据库
                     String sql = "UPDATE [Book] " +
                             "SET [CurrentAudio] = " + getCurrentAudio().getCatalogID() + " " +
+                            "WHERE [BookID] = " + getBookID();
+                    data.execute(sql); //执行更新
+                } finally {
+                    if(data != null) data.close(); //关闭数据对象
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    /**
+     * 更新当前页
+     */
+    private void updateCurrentPage() {
+        //创建线程更新当前语音
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                IData data = null; //数据对象
+
+                try {
+                    IDataSource dataSource = DataSourceManager.getBookDataSource(); //获取数据源
+                    data = DataManager.createData(dataSource.getDataSource()); //创建数据对象
+
+                    //更新数据库
+                    String sql = "UPDATE [Book] " +
+                            "SET [CurrentPage] = " + getCurrentPage().getPageNumber() + " " +
                             "WHERE [BookID] = " + getBookID();
                     data.execute(sql); //执行更新
                 } finally {

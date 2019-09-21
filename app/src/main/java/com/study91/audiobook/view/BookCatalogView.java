@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,7 @@ import com.study91.audiobook.book.IBook;
 import com.study91.audiobook.book.IBookCatalog;
 import com.study91.audiobook.media.IBookMediaPlayer;
 import com.study91.audiobook.media.MediaClient;
+import com.study91.audiobook.ui.PageActivity;
 
 import java.util.List;
 
@@ -178,7 +178,7 @@ public class BookCatalogView extends RelativeLayout {
     }
 
     /**
-     * TODO 有声书目录视图适配器
+     * 有声书目录视图适配器
      */
     private class CatalogViewAdapter extends BaseExpandableListAdapter {
         @Override
@@ -237,9 +237,6 @@ public class BookCatalogView extends RelativeLayout {
                 ui.group.playButton.setVisibility(View.INVISIBLE);
             }
 
-            //设置单击事件监听器
-            ui.group.playButton.setOnClickListener(new OnPlayButtonClickListener(catalog));
-
             //设置当前项背景色
             if (catalog.getCatalogID() == getBook().getCurrentAudio().getCatalogID()) {
                 view.setBackgroundResource(R.color.catalog_group_current); //设置背景色
@@ -270,6 +267,10 @@ public class BookCatalogView extends RelativeLayout {
             }
 
             ui.group.titleTextView.setText(catalog.getTitle()); //目录标题
+
+            //设置事件监听器
+            ui.group.playButton.setOnClickListener(new OnPlayButtonClickListener(catalog)); //播放按钮单击
+            ui.group.iconImageView.setOnClickListener(new OnDisplayPageClickListener(catalog)); //图标单击
 
             return view;
         }
@@ -324,6 +325,7 @@ public class BookCatalogView extends RelativeLayout {
                 ui.child.lastButton.setVisibility(View.GONE); //禁用复读终点按钮
                 ui.child.playEnableButton.setVisibility(View.GONE); //禁用播放开关按钮
             }
+
             return view;
         }
 
@@ -383,6 +385,47 @@ public class BookCatalogView extends RelativeLayout {
         private class Field {
             /**
              * 书目录
+             */
+            IBookCatalog catalog;
+        }
+    }
+
+    /**
+     * 显示页单击事件监听器
+     */
+    private class OnDisplayPageClickListener implements View.OnClickListener {
+        private Field m = new Field(); //私有字段
+
+        /**
+         * 构造器
+         * @param catalog 目录
+         */
+        public OnDisplayPageClickListener(IBookCatalog catalog) {
+            m.catalog = catalog; //目录
+        }
+
+        @Override
+        public void onClick(View v) {
+            getBook().setCurrentPage(getCatalog().getPage()); //重置当前页
+            Intent intent = new Intent(getContext(), PageActivity.class);
+            getContext().startActivity(intent);
+        }
+
+        /**
+         * 获取目录
+         *
+         * @return 目录
+         */
+        private IBookCatalog getCatalog() {
+            return m.catalog;
+        }
+
+        /**
+         * 私有字段类
+         */
+        private class Field {
+            /**
+             * 有声书内容
              */
             IBookCatalog catalog;
         }
