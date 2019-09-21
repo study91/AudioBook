@@ -34,7 +34,7 @@ public class PageActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //设置为竖屏显示
         setContentView(R.layout.activity_page);
 
-        setCurrentPageNumber(getBook().getCurrentPage().getPageNumber()); //设置当前页码
+        setCurrentPageNumber(getBook().getCurrentPage().getPageNumber()); //缓存当前页码
         getMediaClient().register(); //注册媒体客户端
         getMediaClient().setOnReceiver(new OnMediaClientBroadcastReceiver()); //设置广播接收器
 
@@ -155,9 +155,10 @@ public class PageActivity extends Activity {
                 ui.playButton.setVisibility(View.GONE); //当前显示页没有语音时不显示播放按钮
             }
 
-            //如果有声书存储的当前页不是当前显示页时，重置有声书的当前页
-            if (page.getPageNumber() != getBook().getCurrentPage().getPageNumber()) {
-                getBook().setCurrentPage(page);
+            //如果当前显示页和缓存的当前页码不相同时，重置有声书的当前页
+            if (page.getPageNumber() != getCurrentPageNumber()) {
+                getBook().setCurrentPage(page); //重置有声书的当前页
+                setCurrentPageNumber(page.getPageNumber()); //缓存当前页码
             }
         }
 
@@ -210,7 +211,7 @@ public class PageActivity extends Activity {
 
             //如果页码有变化，重置当前显示页
             if (currentPage.getPageNumber() != getCurrentPageNumber()) {
-                setCurrentPageNumber(currentPage.getPageNumber()); //设置当前页码
+                setCurrentPageNumber(currentPage.getPageNumber()); //缓存当前页码
 
                 //重置有声书图片视图页
                 ui.bookImageViewPager.setCurrentItem(getBook().getCurrentPage().getPosition());
