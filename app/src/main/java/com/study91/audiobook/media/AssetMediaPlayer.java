@@ -29,6 +29,7 @@ class AssetMediaPlayer implements IMediaPlayer {
     @Override
     public void setFilename(String filename) {
         if (filename != null && !filename.trim().equals(getFilename())) {
+            m.seekToPosition = 0; //重置播放位置为音频开始位置
             m.mediaFilename = filename.trim(); //设置文件名
 
             //如果媒体播放器不为null，重置媒体播放器
@@ -79,12 +80,16 @@ class AssetMediaPlayer implements IMediaPlayer {
         switch (getMediaState()) {
             case PREPARED: //媒体准备就绪
                 if (!isPlaying()) {
+                    if (m.seekToPosition > 0) {
+                        seekTo(m.seekToPosition); //定位
+                        m.seekToPosition = 0; //复位定位数据
+                    }
+
                     getMediaPlayer().start();
                 }
                 break;
             case PREPARING: //媒体准备中
                 m.mediaState = MediaState.WAITING_TO_PLAY; //设置为等待播放状态
-                m.seekToPosition = 0;
                 break;
             case WAITING_TO_PLAY: //等待播放状态
                 //注：如果媒体处于等待播放状态，将在setOnPreparedListener.onPrepared中执行getMediaPlayer().start()进行播放

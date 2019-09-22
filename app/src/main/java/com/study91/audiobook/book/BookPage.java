@@ -8,6 +8,8 @@ import com.study91.audiobook.system.SystemManager;
 import com.study91.audiobook.tools.ImageTools;
 import com.study91.audiobook.tools.MediaTools;
 
+import java.util.List;
+
 /**
  * 有声书页
  */
@@ -44,8 +46,20 @@ class BookPage implements IBookPage {
 
     @Override
     public IBookCatalog getCatalog() {
-        //TODO 获取有声书页目录代码
-        return null;
+        IBookCatalog bookCatalog = null;
+
+        List<IBookCatalog> catalogs = getBook().getCatalogs();
+
+        //遍历查找当前页所属的目录
+        for (IBookCatalog catalog : catalogs) {
+            if (catalog.getPageNumber() <= getPageNumber()) {
+                bookCatalog = catalog;
+            } else {
+                break;
+            }
+        }
+
+        return bookCatalog;
     }
 
     @Override

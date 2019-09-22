@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -15,7 +16,9 @@ import androidx.viewpager.widget.ViewPager;
 import com.study91.audiobook.R;
 import com.study91.audiobook.book.BookManager;
 import com.study91.audiobook.book.IBook;
+import com.study91.audiobook.book.IBookCatalog;
 import com.study91.audiobook.book.IBookPage;
+import com.study91.audiobook.media.IBookMediaPlayer;
 import com.study91.audiobook.media.MediaClient;
 import com.study91.audiobook.view.BookImageViewPager;
 import com.study91.audiobook.view.MediaPlayerView;
@@ -48,6 +51,7 @@ public class PageActivity extends Activity {
 
         //设置控件事件监听器
         ui.backButton.setOnClickListener(new OnBackButtonClickListener()); //返回按钮单击事件
+        ui.playButton.setOnClickListener(new OnPlayButtonClickListener()); //播放按钮单击事件
         ui.catalogButton.setOnClickListener(new OnCatalogButtonClickListener()); //目录按钮单击事件
 
         //全屏视图
@@ -56,6 +60,20 @@ public class PageActivity extends Activity {
         ui.bookImageViewPager.setOnSingleTapListener(new OnBookImageSingleTapListener()); //设置单击事件监听器
         ui.bookImageViewPager.addOnPageChangeListener(new OnBookImagePageChangeListener()); //设置页改变事件监听器
         ui.fullLayout.addView(ui.bookImageViewPager); //添加书图片视图页到全屏视图
+        Log.d("Test", "onCreate()");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        IBookPage currentPage = getBook().getCurrentPage();
+        if (currentPage.getPageNumber() != getCurrentPageNumber()) {
+            setCurrentPageNumber(currentPage.getPageNumber()); //缓存当前页码
+
+            //重置有声书图片视图页
+            ui.bookImageViewPager.setCurrentItem(getBook().getCurrentPage().getPosition());
+        }
     }
 
     @Override
@@ -160,6 +178,9 @@ public class PageActivity extends Activity {
                 getBook().setCurrentPage(page); //重置有声书的当前页
                 setCurrentPageNumber(page.getPageNumber()); //缓存当前页码
             }
+
+            Log.d("Test", "当前页=" + getBook().getCurrentPage().getPageNumber());
+            Log.d("Test", "当前语音页=" + getBook().getCurrentAudioPage(getMediaClient().getMediaPlayer().getPosition()).getPageNumber());
         }
 
         @Override
@@ -179,6 +200,43 @@ public class PageActivity extends Activity {
     }
 
     /**
+     * 播放按钮单击事件监听器
+     */
+    private class OnPlayButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer(); //媒体播放器
+            IBookPage currentAudioPage = getBook().getCurrentAudioPage(mediaPlayer.getPosition()); //当前语音页
+            IBookPage currentPage = getBook().getCurrentPage(); //获取当前页
+
+            if (currentPage.getPageID() == currentAudioPage.getPageID()) {
+                //当前页是当前语音页
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause(); //暂停播放
+                } else {
+                    mediaPlayer.play(); //播放
+                }
+            } else {
+                //当前页不是当前语音页
+                if (!currentPage.getAudioFilename().equals(currentAudioPage.getAudioFilename())) {
+                    IBookCatalog currentAudio = currentPage.getCatalog(); //当前页所属目录
+                    getBook().setCurrentAudio(currentAudio); //重置当前语音目录
+                    setCurrentPageNumber(currentPage.getPageNumber()); //缓存当前页码
+
+                    //重置播放文件
+                    mediaPlayer.setAudioFile(
+                            currentAudio.getAudioFilename(),
+                            currentAudio.getTitle(),
+                            currentAudio.getIconFilename());
+                }
+
+                mediaPlayer.seekTo((int)currentPage.getAudioStartTime()); //定位播放位置
+                mediaPlayer.play(); //播放
+            }
+        }
+    }
+
+    /**
      * 目录按钮单击事件监听器
      */
     private class OnCatalogButtonClickListener implements View.OnClickListener {
@@ -190,31 +248,36 @@ public class PageActivity extends Activity {
     }
 
     /**
-     * TODO 媒体客户端广播接收器
+     * 媒体客户端广播接收器
      */
     private class OnMediaClientBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-//            IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer(); //媒体播放器
+            //设置播放按钮
             IBookPage currentPage = getBook().getCurrentPage(); //当前页
+            IBookCatalog currentAudio = getBook().getCurrentAudio(); //当前语音
 
-//            IBookPage currentAudioPage = book.getCurrentAudioPage(mediaPlayer.getPosition()); //当前语音页
-//            boolean isPlaying = mediaPlayer.isPlaying(); //是否正在播放
-//
-//            //设置播放图标
-//            if (isPlaying && currentPage.getPageNumber() == currentAudioPage.getPageNumber()) {
-//                ui.playButton.setBackgroundResource(R.drawable.button_pause); //设置为暂停图标
-//            } else {
-//                ui.playButton.setBackgroundResource(R.drawable.button_play); //设置播放图标
-//            }
-//
+            //只有当前语音目录和当前页的语音文件相同时才设置图标
+            if (currentAudio.getAudioFilename().equals(currentPage.getAudioFilename())) {
+                //当前语音目录和当前页的语音文件相同
+                IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer(); //媒体播放器
+                boolean isPlaying = mediaPlayer.isPlaying(); //是否正在播放
+                IBookPage currentAudioPage = getBook().getCurrentAudioPage(mediaPlayer.getPosition()); //当前语音页
 
-            //如果页码有变化，重置当前显示页
-            if (currentPage.getPageNumber() != getCurrentPageNumber()) {
-                setCurrentPageNumber(currentPage.getPageNumber()); //缓存当前页码
-
-                //重置有声书图片视图页
-                ui.bookImageViewPager.setCurrentItem(getBook().getCurrentPage().getPosition());
+                if (currentPage.getPageID() == currentAudioPage.getPageID()) {
+                    //当前页与当前语音页相同
+                    if (isPlaying) {
+                        ui.playButton.setBackgroundResource(R.drawable.button_pause); //设置为暂停图标
+                    } else {
+                        ui.playButton.setBackgroundResource(R.drawable.button_play); //设置播放图标
+                    }
+                } else {
+                    //当前页与当前语音页不相同
+                    ui.playButton.setBackgroundResource(R.drawable.button_play); //设置播放图标
+                }
+            } else {
+                //当前语音目录和当前页的语音文件不相同
+                ui.playButton.setBackgroundResource(R.drawable.button_play); //设置播放图标
             }
         }
     }

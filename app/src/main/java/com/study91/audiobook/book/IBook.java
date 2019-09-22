@@ -137,7 +137,7 @@ public interface IBook {
      * @param position 语音位置
      * @return 当前语音页
      */
-    //IBookPage getCurrentAudioPage(long position);
+    IBookPage getCurrentAudioPage(long position);
 
     /**
      * 获取下一个语音目录
@@ -162,12 +162,6 @@ public interface IBook {
      * @param catalog 目录
      */
     //void resetAudioPlayEnable(IBookCatalog catalog);
-
-    /**
-     * 设置当前页
-     * @param pageNumber 页码
-     */
-//    void setCurrentPage(int pageNumber);
 
     /**
      * 设置当前页
