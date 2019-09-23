@@ -106,7 +106,7 @@ public interface IBook {
      * 设置复读起点目录
      * @param catalog 目录
      */
-    //void setFirstAudio(IBookCatalog catalog);
+    void setFirstAudio(IBookCatalog catalog);
 
     /**
      * 获取复读起点目录
@@ -149,7 +149,7 @@ public interface IBook {
      * 设置复读终点目录
      * @param catalog 复读终点目录
      */
-    //void setLastAudio(IBookCatalog catalog);
+    void setLastAudio(IBookCatalog catalog);
 
     /**
      * 获取复读终点目录
@@ -158,10 +158,10 @@ public interface IBook {
     IBookCatalog getLastAudio();
 
     /**
-     * 重置语音播放开关
+     * 设置置语音播放开关
      * @param catalog 目录
      */
-    //void resetAudioPlayEnable(IBookCatalog catalog);
+    void setAudioPlayEnable(IBookCatalog catalog);
 
     /**
      * 设置当前页

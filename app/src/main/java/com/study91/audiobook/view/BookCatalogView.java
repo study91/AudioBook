@@ -326,6 +326,12 @@ public class BookCatalogView extends RelativeLayout {
                 ui.child.playEnableButton.setVisibility(View.GONE); //禁用播放开关按钮
             }
 
+            //设置控件事件
+            ui.child.displayButton.setOnClickListener(new OnDisplayPageClickListener(catalog)); //显示按钮单击事件
+            ui.child.firstButton.setOnClickListener(new OnFirstButtonClickListener(catalog)); //复读起点按钮单击事件
+            ui.child.lastButton.setOnClickListener(new OnLastButtonClickListener(catalog)); //复读终点按钮单击事件
+            ui.child.playEnableButton.setOnClickListener(new OnPlayEnableButtonClickListener(catalog)); //播放开关按钮单击事件
+
             return view;
         }
 
@@ -352,7 +358,7 @@ public class BookCatalogView extends RelativeLayout {
         @Override
         public void onClick(View v) {
            IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer(); //获取媒体播放器
-            if (getCurrentAudioID() == getCatalog().getCatalogID()) {
+            if (getBook().getCurrentAudio().getCatalogID() == getCatalog().getCatalogID()) {
                 //点击的是当前目录的播放按钮
                 if (isPlaying()) {
                     mediaPlayer.pause(); //如果正在播放，就暂停播放
@@ -368,6 +374,7 @@ public class BookCatalogView extends RelativeLayout {
                         getCatalog().getTitle(),
                         getCatalog().getIconFilename());
                 mediaPlayer.play(); //播放当前语音
+                getAdapter().notifyDataSetChanged();
             }
         }
 
@@ -409,6 +416,125 @@ public class BookCatalogView extends RelativeLayout {
             getBook().setCurrentPage(getCatalog().getPage()); //重置当前页
             Intent intent = new Intent(getContext(), PageActivity.class);
             getContext().startActivity(intent);
+        }
+
+        /**
+         * 获取目录
+         *
+         * @return 目录
+         */
+        private IBookCatalog getCatalog() {
+            return m.catalog;
+        }
+
+        /**
+         * 私有字段类
+         */
+        private class Field {
+            /**
+             * 有声书内容
+             */
+            IBookCatalog catalog;
+        }
+    }
+
+    /**
+     * 复读起点按钮单击事件监听器
+     */
+    private class OnFirstButtonClickListener implements View.OnClickListener {
+        private Field m = new Field(); //私有字段
+
+        /**
+         * 构造器
+         * @param catalog 目录
+         */
+        public OnFirstButtonClickListener(IBookCatalog catalog) {
+            m.catalog = catalog; //有声书内容
+        }
+
+        @Override
+        public void onClick(View v) {
+            getBook().setFirstAudio(getCatalog()); //重置复读起点
+            getAdapter().notifyDataSetChanged();
+        }
+
+
+        /**
+         * 获取目录
+         * @return 目录
+         */
+        private IBookCatalog getCatalog() {
+            return m.catalog;
+        }
+
+        /**
+         * 私有字段类
+         */
+        private class Field {
+            /**
+             * 书目录
+             */
+            IBookCatalog catalog;
+        }
+    }
+
+    /**
+     * 复读终点按钮单击事件监听器
+     */
+    private class OnLastButtonClickListener implements View.OnClickListener {
+        private Field m = new Field(); //私有字段
+
+        /**
+         * 构造器
+         * @param catalog 目录
+         */
+        public OnLastButtonClickListener(IBookCatalog catalog) {
+            m.catalog = catalog; //有声书内容
+        }
+
+        @Override
+        public void onClick(View v) {
+            getBook().setLastAudio(getCatalog()); //重置复读终点
+            getAdapter().notifyDataSetChanged();
+        }
+
+        /**
+         * 获取目录
+         * @return 目录
+         */
+        private IBookCatalog getCatalog() {
+            return m.catalog;
+        }
+
+        /**
+         * 私有字段类
+         */
+        private class Field {
+            /**
+             * 书目录
+             */
+            IBookCatalog catalog;
+        }
+    }
+
+    /**
+     * 播放开关按钮单击事件监听器
+     */
+    private class OnPlayEnableButtonClickListener implements View.OnClickListener {
+        private Field m = new Field(); //私有字段
+
+        /**
+         * 构造器
+         * @param catalog 目录
+         */
+        public OnPlayEnableButtonClickListener(IBookCatalog catalog) {
+            m.catalog = catalog; //目录
+        }
+
+        @Override
+        public void onClick(View v) {
+            getBook().setAudioPlayEnable(getCatalog()); //重置语音播放开关
+            getAdapter().notifyDataSetChanged(); //刷新
         }
 
         /**
