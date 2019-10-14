@@ -68,6 +68,7 @@ public class MediaPlayerView extends RelativeLayout {
 
     @Override
     protected void onDetachedFromWindow() {
+        getBook().setCurrentAudioPosition(getMediaClient().getMediaPlayer().getPosition()); //重置当前语音位置
         getMediaClient().unregister(); //注销媒体客户端
         super.onDetachedFromWindow();
     }
@@ -170,12 +171,13 @@ public class MediaPlayerView extends RelativeLayout {
         @Override
         public void onReceive(Context context, Intent intent) {
             IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer(); //获取媒体播放器
-            Log.d("Test", "播放位置=" + mediaPlayer.getPosition());
 
-            ui.audioPositionTextView.setText(MediaTools.parseTime(mediaPlayer.getPosition())); //设置语音位置文本
-            ui.audioLengthTextView.setText(MediaTools.parseTime(mediaPlayer.getLength())); //设置语音长度文本
-            ui.audioSeekBar.setMax(mediaPlayer.getLength()); //设置语音进度条最大值
-            ui.audioSeekBar.setProgress(mediaPlayer.getPosition()); //设置语音进度条播放位置
+            if (mediaPlayer.getLength() > 0) {
+                ui.audioPositionTextView.setText(MediaTools.parseTime(mediaPlayer.getPosition())); //设置语音位置文本
+                ui.audioLengthTextView.setText(MediaTools.parseTime(mediaPlayer.getLength())); //设置语音长度文本
+                ui.audioSeekBar.setMax(mediaPlayer.getLength()); //设置语音进度条最大值
+                ui.audioSeekBar.setProgress(mediaPlayer.getPosition()); //设置语音进度条播放位置
+            }
 
             //设置书名称
             IBook book = BookManager.getBook();
@@ -197,6 +199,14 @@ public class MediaPlayerView extends RelativeLayout {
                 ui.playButton.setBackgroundResource(R.drawable.media_player_play);
             }
         }
+    }
+
+    /**
+     * 获取全局有声书
+     * @return 有声书
+     */
+    private IBook getBook() {
+        return BookManager.getBook();
     }
 
     /**

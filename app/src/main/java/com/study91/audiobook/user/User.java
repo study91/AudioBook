@@ -82,25 +82,33 @@ class User implements IUser {
 
     @Override
     public void update() {
-        IData data = null;
+        //创建线程更新用户数据
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                IData data = null; //数据对象
 
-        try {
-            IDataSource dataSource  = DataSourceManager.getUserDataSource(); //获取用户数据源
-            data = DataManager.createData(dataSource.getDataSource()); //获取数据对象
+                try {
+                    IDataSource dataSource = DataSourceManager.getUserDataSource(); //获取数据源
+                    data = DataManager.createData(dataSource.getDataSource()); //创建数据对象
 
-            //更新字符串
-            String sql = "UPDATE [User] " +
-                    "SET " +
-                    "[BookID] = " + getBookID() + "," +
-                    "[AudioVolume] = " + getAudioVolume() + "," +
-                    "[MusicVolume] = " + getMusicVolume() + " " +
-                    "WHERE " +
-                    "[UserID] = " + getUserID();
+                    //更新字符串
+                    String sql = "UPDATE [User] " +
+                            "SET " +
+                            "[BookID] = " + getBookID() + "," +
+                            "[AudioVolume] = " + getAudioVolume() + "," +
+                            "[MusicVolume] = " + getMusicVolume() + " " +
+                            "WHERE " +
+                            "[UserID] = " + getUserID();
 
-            data.execute(sql); //执行更新
-        } finally {
-            if(data != null) data.close(); //关闭数据对象
-        }
+                    data.execute(sql); //执行更新
+                } finally {
+                    if(data != null) data.close(); //关闭数据对象
+                }
+            }
+        });
+
+        thread.start();
     }
 
     /**

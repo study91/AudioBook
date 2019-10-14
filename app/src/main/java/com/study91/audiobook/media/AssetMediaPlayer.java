@@ -80,11 +80,6 @@ class AssetMediaPlayer implements IMediaPlayer {
         switch (getMediaState()) {
             case PREPARED: //媒体准备就绪
                 if (!isPlaying()) {
-                    if (m.seekToPosition > 0) {
-                        seekTo(m.seekToPosition); //定位
-                        m.seekToPosition = 0; //复位定位数据
-                    }
-
                     getMediaPlayer().start();
                 }
                 break;
@@ -128,12 +123,12 @@ class AssetMediaPlayer implements IMediaPlayer {
     @Override
     public void seekTo(int position) {
         switch (getMediaState()) {
-            case PREPARED:  //媒体准备就绪
-                getMediaPlayer().seekTo(position);
-                break;
             case IDLE: //空闲状态
             case PREPARING: //媒体准备中
                 m.seekToPosition = position;
+                break;
+            case PREPARED:  //媒体准备就绪
+                getMediaPlayer().seekTo(position);
                 break;
         }
     }
@@ -154,14 +149,9 @@ class AssetMediaPlayer implements IMediaPlayer {
 
     @Override
     public int getPosition() {
-        //TODO 获取媒体位置
         int position = 0;
 
         switch (getMediaState()) {
-            case IDLE: //空闲状态
-            case PREPARING: //媒体准备中
-                position = m.seekToPosition;
-                break;
             case PREPARED:  //媒体准备就绪
             case COMPLETED: //媒体播放完成
                 position = getMediaPlayer().getCurrentPosition();
@@ -237,12 +227,24 @@ class AssetMediaPlayer implements IMediaPlayer {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     switch (getMediaState()) {
-                        case WAITING_TO_PLAY: //等待播放媒体
-                            m.mediaState = MediaState.PREPARED; //设置媒体状态为准备就绪
-                            play(); //播放
-                            break;
                         case PREPARING: //准备媒体中
                             m.mediaState = MediaState.PREPARED; //设置媒体状态为准备就绪
+
+                            //如果有定位信息，立即进行定位
+                            if (m.seekToPosition > 0) {
+                                seekTo(m.seekToPosition); //定位
+                                m.seekToPosition = 0; //重置缓存的定位信息
+                            }
+                            break;
+                        case WAITING_TO_PLAY: //等待播放媒体
+                            m.mediaState = MediaState.PREPARED; //设置媒体状态为准备就绪
+
+                            //如果有定位信息，立即进行定位
+                            if (m.seekToPosition > 0) {
+                                seekTo(m.seekToPosition); //定位
+                                m.seekToPosition = 0; //重置缓存的定位信息
+                            }
+                            play(); //播放
                             break;
                     }
 

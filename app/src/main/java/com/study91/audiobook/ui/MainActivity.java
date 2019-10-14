@@ -16,6 +16,8 @@ import com.study91.audiobook.book.IBookCatalog;
 import com.study91.audiobook.media.IBookMediaPlayer;
 import com.study91.audiobook.media.MediaClient;
 import com.study91.audiobook.media.MediaService;
+import com.study91.audiobook.user.IUser;
+import com.study91.audiobook.user.UserManager;
 
 /**
  * 主窗口
@@ -87,15 +89,25 @@ public class MainActivity extends Activity {
      * @param bookID 有声书ID
      */
     private void playBook(int bookID) {
-        BookManager.setBook(bookID);
-        IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer();
-        IBookCatalog catalog = BookManager.getBook().getCurrentAudio();
+        if (BookManager.getBook().getBookID() != bookID) {
+            IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer();
+            BookManager.getBook().setCurrentAudioPosition(mediaPlayer.getPosition());
 
-        mediaPlayer.setAudioFile(
-                catalog.getAudioFilename(),
-                catalog.getTitle(),
-                catalog.getIconFilename());
-        mediaPlayer.play();
+            IUser user = UserManager.getUser();
+            user.setBookID(bookID);
+            user.update();
+
+            BookManager.setBook(user.getBookID());
+
+            IBookCatalog catalog = BookManager.getBook().getCurrentAudio();
+
+            mediaPlayer.setAudioFile(
+                    catalog.getAudioFilename(),
+                    catalog.getTitle(),
+                    catalog.getIconFilename());
+            mediaPlayer.seekTo(BookManager.getBook().getCurrentAudioPosition());
+            mediaPlayer.play();
+        }
     }
 
     /**

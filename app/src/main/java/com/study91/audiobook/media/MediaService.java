@@ -57,7 +57,6 @@ public class MediaService extends Service {
         getMediaPlayer().setAudioVolume(getUser().getAudioVolume()); //设置媒体播放器语音音量
         getMediaPlayer().setMusicVolume(getUser().getMusicVolume()); //设置媒体播放器音乐音量
 
-        Log.d("Test", "有声书ID=" + getUser().getBookID());
         BookManager.setBook(getUser().getBookID()); //设置有声书
         IBook book = getBook(); //获取当前打开的书
         IBookCatalog currentAudio = book.getCurrentAudio(); //获取当前语音目录
@@ -73,7 +72,6 @@ public class MediaService extends Service {
 
     @Override
     public void onDestroy() {
-        getBook().setCurrentAudioPosition(getMediaPlayer().getPosition()); //重置当前语音位置
         cancelNotification(); //取消通知
         stopTimer(); //停止定时器
         unregisterHeadsetPlugReceiver(); //注销耳机广播接收器
