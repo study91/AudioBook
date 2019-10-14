@@ -122,16 +122,6 @@
                 android:layout_centerVertical="true"
                 android:background="@drawable/media_player_play"/>
 
-            <!-- 同步复读按钮 -->
-            <Button
-                android:id="@+id/synchronizationButton"
-                android:layout_width="@dimen/media_player_icon_width"
-                android:layout_height="@dimen/media_player_icon_height"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                android:background="@drawable/media_player_synchronization_disable"
-                android:visibility="gone"/>
-
             <!-- 全屏按钮 -->
             <Button
                 android:id="@+id/fullScreenButton"

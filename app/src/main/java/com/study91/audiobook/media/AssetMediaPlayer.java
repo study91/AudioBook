@@ -143,8 +143,6 @@ class AssetMediaPlayer implements IMediaPlayer {
 
         switch (getMediaState()) {
             case PREPARED:  //媒体准备就绪
-                length = getMediaPlayer().getDuration();
-                break;
             case COMPLETED: //媒体播放完成
                 length = getMediaPlayer().getDuration();
                 break;
@@ -155,12 +153,14 @@ class AssetMediaPlayer implements IMediaPlayer {
 
     @Override
     public int getPosition() {
+        //TODO 获取媒体位置
         int position = 0;
 
         switch (getMediaState()) {
-            case PREPARED:  //媒体准备就绪
-                position = getMediaPlayer().getCurrentPosition();
+            case PREPARING:
+                position = m.seekToPosition;
                 break;
+            case PREPARED:  //媒体准备就绪
             case COMPLETED: //媒体播放完成
                 position = getMediaPlayer().getCurrentPosition();
                 break;
@@ -310,8 +310,6 @@ class AssetMediaPlayer implements IMediaPlayer {
                             Log.d(getClass().getName(), "MEDIA_INFO_BUFFERING_END");
                             break;
                         case 701:
-                            Log.d(getClass().getName(), "MEDIA_INFO_METADATA_UPDATE");
-                            break;
                         case 802:
                             Log.d(getClass().getName(), "MEDIA_INFO_METADATA_UPDATE");
                             break;

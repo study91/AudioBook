@@ -53,14 +53,13 @@ public class MediaService extends Service {
         registerPhoneStateListener(); //注册电话状态监听器
         registerHeadsetPlugReceiver(); //注册耳机广播接收器
 
-        int userID = getResources().getInteger(R.integer.user_id); //获取用户ID
-        UserManager.setUser(userID); //设置用户
-        IUser user = UserManager.getUser(); //获取全局用户
-        getMediaPlayer().setAudioVolume(user.getAudioVolume()); //设置媒体播放器语音音量
-        getMediaPlayer().setMusicVolume(user.getMusicVolume()); //设置媒体播放器音乐音量
 
-        BookManager.setBook(user.getBookID()); //设置有声书
-        IBook book = BookManager.getBook(); //获取当前打开的书
+        getMediaPlayer().setAudioVolume(getUser().getAudioVolume()); //设置媒体播放器语音音量
+        getMediaPlayer().setMusicVolume(getUser().getMusicVolume()); //设置媒体播放器音乐音量
+
+        Log.d("Test", "有声书ID=" + getUser().getBookID());
+        BookManager.setBook(getUser().getBookID()); //设置有声书
+        IBook book = getBook(); //获取当前打开的书
         IBookCatalog currentAudio = book.getCurrentAudio(); //获取当前语音目录
 
         //设置语音文件
@@ -69,10 +68,12 @@ public class MediaService extends Service {
                 currentAudio.getTitle(),
                 currentAudio.getIconFilename());
         getMediaPlayer().setSoundType(book.getSoundType());
+        getMediaPlayer().seekTo(getBook().getCurrentAudioPosition()); //设置语音位置
     }
 
     @Override
     public void onDestroy() {
+        getBook().setCurrentAudioPosition(getMediaPlayer().getPosition()); //重置当前语音位置
         cancelNotification(); //取消通知
         stopTimer(); //停止定时器
         unregisterHeadsetPlugReceiver(); //注销耳机广播接收器
@@ -318,6 +319,22 @@ public class MediaService extends Service {
                 }
             }
         }
+    }
+
+    /**
+     * 获取全局有声书
+     * @return 有声书
+     */
+    private IBook getBook() {
+        return BookManager.getBook();
+    }
+
+    /**
+     * 获取用户
+     * @return 用户
+     */
+    private IUser getUser() {
+        return UserManager.getUser();
     }
 
     /**

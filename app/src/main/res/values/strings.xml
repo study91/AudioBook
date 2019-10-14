@@ -15,4 +15,7 @@
     <string name="permission_dialog_positive_button">立即手动授权</string>
     <string name="permission_dialog_negative_button">取消</string>
     <string name="permission_warning">请给软件授予必须的权限，否则软件不能正常使用。</string>
+
+    <string name="msg_sync_enable">自动同步已开启</string>
+    <string name="msg_sync_disable">自动同步已关闭</string>
 </resources>

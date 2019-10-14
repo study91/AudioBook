@@ -7,27 +7,31 @@
     <!-- 全屏布局 -->
     <RelativeLayout
         android:id="@+id/fullLayout"
-        android:layout_above="@+id/adLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_above="@+id/mediaPlayerView"
+        android:layout_marginBottom="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/rjYuWen1aButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="人教版一年级语文上册" />
+
+            <Button
+                android:id="@+id/rjYuWen1bButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="人教版一年级语文下册" />
+        </LinearLayout>
     </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <Button
-            android:id="@+id/rjYuWen1aButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="人教版一年级语文上册"/>
 
-        <Button
-            android:id="@+id/rjYuWen1bButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="人教版一年级语文下册"/>
-    </LinearLayout>
 
     <!-- 媒体播放器视图 -->
     <com.study91.audiobook.view.MediaPlayerView

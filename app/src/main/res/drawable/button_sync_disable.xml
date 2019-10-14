@@ -4,10 +4,10 @@
     <!-- 没有按下时的图片 -->
     <item
         android:state_pressed="false"
-        android:drawable="@mipmap/media_player_synchronization_enable_normal"/>
+        android:drawable="@mipmap/button_sync_disable_normal"/>
     
     <!-- 按下时的图片 -->
     <item
         android:state_pressed="true"
-        android:drawable="@mipmap/media_player_synchronization_enable_pressed"/>
+        android:drawable="@mipmap/button_sync_disable_pressed"/>
 </selector>

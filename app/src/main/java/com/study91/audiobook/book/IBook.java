@@ -98,6 +98,12 @@ public interface IBook {
     boolean syncEnable();
 
     /**
+     * 设置同步开关
+     * @param value 同步值（true=打开同步 false=关闭同步）
+     */
+    void setSyncEnable(boolean value);
+
+    /**
      * 移动到下一个语音目录
      */
     void moveToNextAudio();
@@ -131,6 +137,18 @@ public interface IBook {
      * @return 当前语音目录
      */
     IBookCatalog getCurrentAudio();
+
+    /**
+     * 设置当前语音位置
+     * @param position 语音位置
+     */
+    void setCurrentAudioPosition(int position);
+
+    /**
+     * 获取当前语音位置
+     * @return 当前语音位置
+     */
+    int getCurrentAudioPosition();
 
     /**
      * 获取当前语音页

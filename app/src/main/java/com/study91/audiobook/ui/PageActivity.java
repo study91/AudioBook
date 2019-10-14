@@ -46,12 +46,14 @@ public class PageActivity extends Activity {
         ui.topLayout = (RelativeLayout) findViewById(R.id.topLayout); //顶部布局
         ui.backButton = (Button) findViewById(R.id.backButton); //返回按钮
         ui.playButton = (Button) findViewById(R.id.playButton); //播放按钮
+        ui.syncButton = (Button) findViewById(R.id.syncButton); //同步按钮
         ui.catalogButton = (Button) findViewById(R.id.catalogButton); //目录按钮
         ui.mediaPlayerView = (MediaPlayerView) findViewById(R.id.mediaPlayerView); //媒体播放视图
 
         //设置控件事件监听器
         ui.backButton.setOnClickListener(new OnBackButtonClickListener()); //返回按钮单击事件
         ui.playButton.setOnClickListener(new OnPlayButtonClickListener()); //播放按钮单击事件
+        ui.syncButton.setOnClickListener(new OnSyncButtonClickListener()); //同步按钮单击事件
         ui.catalogButton.setOnClickListener(new OnCatalogButtonClickListener()); //目录按钮单击事件
 
         //全屏视图
@@ -60,7 +62,9 @@ public class PageActivity extends Activity {
         ui.bookImageViewPager.setOnSingleTapListener(new OnBookImageSingleTapListener()); //设置单击事件监听器
         ui.bookImageViewPager.addOnPageChangeListener(new OnBookImagePageChangeListener()); //设置页改变事件监听器
         ui.fullLayout.addView(ui.bookImageViewPager); //添加书图片视图页到全屏视图
-        Log.d("Test", "onCreate()");
+
+        setPlayButton(); //设置播放按钮
+        setSyncButton(); //设置同步按钮
     }
 
     @Override
@@ -133,6 +137,31 @@ public class PageActivity extends Activity {
     }
 
     /**
+     * 设置播放按钮
+     */
+    private void setPlayButton() {
+        int position = ui.bookImageViewPager.getCurrentItem();
+        IBookPage page = getBook().getPages().get(position); //获取当前显示页
+
+        if (page.hasAudio()) {
+            ui.playButton.setVisibility(View.VISIBLE); //当前显示页有语音时显示播放按钮
+        } else {
+            ui.playButton.setVisibility(View.GONE); //当前显示页没有语音时不显示播放按钮
+        }
+    }
+
+    /**
+     * 设置同步按钮
+     */
+    private void setSyncButton() {
+        if (getBook().syncEnable()) {
+            ui.syncButton.setBackgroundResource(R.drawable.button_sync_enable);
+        } else {
+            ui.syncButton.setBackgroundResource(R.drawable.button_sync_disable);
+        }
+    }
+
+    /**
      * 获取媒体客户端
      * @return 媒体客户端
      */
@@ -165,13 +194,9 @@ public class PageActivity extends Activity {
 
         @Override
         public void onPageSelected(int position) {
-            IBookPage page = getBook().getPages().get(position); //获取当前显示页
+            setPlayButton(); //设置播放按钮
 
-            if (page.hasAudio()) {
-                ui.playButton.setVisibility(View.VISIBLE); //当前显示页有语音时显示播放按钮
-            } else {
-                ui.playButton.setVisibility(View.GONE); //当前显示页没有语音时不显示播放按钮
-            }
+            IBookPage page = getBook().getPages().get(position); //获取当前显示页
 
             //如果当前显示页和缓存的当前页码不相同时，重置有声书的当前页
             if (page.getPageNumber() != getCurrentPageNumber()) {
@@ -179,8 +204,15 @@ public class PageActivity extends Activity {
                 setCurrentPageNumber(page.getPageNumber()); //缓存当前页码
             }
 
-            Log.d("Test", "当前页=" + getBook().getCurrentPage().getPageNumber());
-            Log.d("Test", "当前语音页=" + getBook().getCurrentAudioPage(getMediaClient().getMediaPlayer().getPosition()).getPageNumber());
+            ///如果同步开关已打开，关闭同步开关
+            int mediaPosition = getMediaClient().getMediaPlayer().getPosition(); //媒体播放位置
+            IBookPage currentAudioPage = getBook().getCurrentAudioPage(mediaPosition); //当前语音页
+
+            //只有当前页和当前语音页不相同时，才关闭同步开关
+            if (page.getPageNumber() != currentAudioPage.getPageNumber()) {
+                getBook().setSyncEnable(false); //关闭同步开关
+                setSyncButton(); //设置同步按钮
+            }
         }
 
         @Override
@@ -237,6 +269,17 @@ public class PageActivity extends Activity {
     }
 
     /**
+     * 同步按钮单击事件监听器
+     */
+    private class OnSyncButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            getBook().setSyncEnable(!getBook().syncEnable()); //设置同步开关
+            setSyncButton(); //设置同步按钮
+        }
+    }
+
+    /**
      * 目录按钮单击事件监听器
      */
     private class OnCatalogButtonClickListener implements View.OnClickListener {
@@ -253,20 +296,18 @@ public class PageActivity extends Activity {
     private class OnMediaClientBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            //设置播放按钮
+            ///设置播放按钮
             IBookPage currentPage = getBook().getCurrentPage(); //当前页
             IBookCatalog currentAudio = getBook().getCurrentAudio(); //当前语音
+            IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer(); //媒体播放器
 
             //只有当前语音目录和当前页的语音文件相同时才设置图标
             if (currentAudio.getAudioFilename().equals(currentPage.getAudioFilename())) {
                 //当前语音目录和当前页的语音文件相同
-                IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer(); //媒体播放器
-                boolean isPlaying = mediaPlayer.isPlaying(); //是否正在播放
                 IBookPage currentAudioPage = getBook().getCurrentAudioPage(mediaPlayer.getPosition()); //当前语音页
-
                 if (currentPage.getPageID() == currentAudioPage.getPageID()) {
                     //当前页与当前语音页相同
-                    if (isPlaying) {
+                    if (mediaPlayer.isPlaying()) {
                         ui.playButton.setBackgroundResource(R.drawable.button_pause); //设置为暂停图标
                     } else {
                         ui.playButton.setBackgroundResource(R.drawable.button_play); //设置播放图标
@@ -279,6 +320,17 @@ public class PageActivity extends Activity {
                 //当前语音目录和当前页的语音文件不相同
                 ui.playButton.setBackgroundResource(R.drawable.button_play); //设置播放图标
             }
+
+            ///只有打开同步时，进行同步设置
+            if (getBook().syncEnable()) {
+                //获取当前语音页位置
+                int audioPagePosition =
+                        getBook().getCurrentAudioPage(mediaPlayer.getPosition()).getPosition();
+
+                ui.bookImageViewPager.setCurrentItem(audioPagePosition); //显示正在播放的语音页
+            }
+
+            setSyncButton(); //设置同步按钮
         }
     }
 
@@ -290,6 +342,11 @@ public class PageActivity extends Activity {
          * 当前页码
          */
         int currentPageNumber;
+
+        /**
+         * 当前同步开关
+         */
+        boolean currentSyncEnable;
 
         /**
          * 是否有工具条
@@ -325,6 +382,11 @@ public class PageActivity extends Activity {
          * 播放按钮
          */
         Button playButton;
+
+        /**
+         * 同步按钮
+         */
+        Button syncButton;
 
         /**
          * 目录按钮

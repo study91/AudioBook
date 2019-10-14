@@ -3,6 +3,7 @@ package com.study91.audiobook.book;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.widget.Toast;
 
 import com.study91.audiobook.R;
 import com.study91.audiobook.data.DataManager;
@@ -128,6 +129,17 @@ class Book implements IBook {
     }
 
     @Override
+    public void setSyncEnable(boolean value) {
+        m.syncEnable = value; //重置同步开关
+        updateSync(value); //更新同步值
+
+        //显示提示信息
+        String msg = getContext().getResources().getString(R.string.msg_sync_disable);
+        if (syncEnable()) msg = getContext().getResources().getString(R.string.msg_sync_enable);
+        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show(); //显示信息
+    }
+
+    @Override
     public void moveToNextAudio() {
         if (getCurrentAudio().getCatalogID() == getLastAudio().getCatalogID()) {
             //当前语音目录是复读终点时，将复读起点设置为当前语音目录
@@ -202,7 +214,7 @@ class Book implements IBook {
             m.currentAudio = catalog; //重置当前语音目录
             updateCurrentAudio(); //更新当前语音
 
-            //目录不充许播放时，将此目录以外的其他目录设置为禁款播放，并将复读起点和复读终点都设置为此目录
+            //目录不充许播放时，将此目录以外的其他目录设置为禁止播放，并将复读起点和复读终点都设置为此目录
             if (!catalog.allowPlayAudio()) {
                 catalog.setAudioPlayEnable(true); //设置目录为充许播放
                 updateAudioPlayEnable(catalog); //更新语音目录播放开关
@@ -217,6 +229,17 @@ class Book implements IBook {
     @Override
     public IBookCatalog getCurrentAudio() {
         return m.currentAudio;
+    }
+
+    @Override
+    public void setCurrentAudioPosition(int position) {
+        m.currentAudioPosition = position;
+        updateCurrentAudioPosition(position); //更新当前语音位置
+    }
+
+    @Override
+    public int getCurrentAudioPosition() {
+        return m.currentAudioPosition;
     }
 
     @Override
@@ -502,15 +525,16 @@ class Book implements IBook {
                 int contentType = cursor.getInt(cursor.getColumnIndex("ContentType")); //内容类型
                 int soundType = cursor.getInt(cursor.getColumnIndex("SoundType")); //声音类型
                 int fullMode = cursor.getInt(cursor.getColumnIndex("FullMode")); //全屏模式
-                int titleLinkMode = cursor.getInt(cursor.getColumnIndex("TitleLinkMode")); //标题链接模式
-                int iconLinkMode = cursor.getInt(cursor.getColumnIndex("IconLinkMode")); //图标链接模式
+//                int titleLinkMode = cursor.getInt(cursor.getColumnIndex("TitleLinkMode")); //标题链接模式
+//                int iconLinkMode = cursor.getInt(cursor.getColumnIndex("IconLinkMode")); //图标链接模式
                 m.contentType = ContentType.values()[contentType]; //内容类型
                 m.soundType = SoundType.values()[soundType]; //声音类型
                 m.fullMode = FullMode.values()[fullMode]; //全屏模式
-                m.titleLinkMode = LinkMode.values()[titleLinkMode]; //标题链接模式
-                m.iconLinkMode = LinkMode.values()[iconLinkMode]; //图标链接模式
+//                m.titleLinkMode = LinkMode.values()[titleLinkMode]; //标题链接模式
+//                m.iconLinkMode = LinkMode.values()[iconLinkMode]; //图标链接模式
 
                 m.currentAudioID = cursor.getInt(cursor.getColumnIndex("CurrentAudio")); //当前语音目录ID
+                m.currentAudioPosition = cursor.getInt(cursor.getColumnIndex("CurrentPosition")); //当前语音位置
                 m.currentPageNumber = cursor.getInt(cursor.getColumnIndex("CurrentPage")); //当前显示页码
             }
         } finally {
@@ -881,6 +905,70 @@ class Book implements IBook {
     }
 
     /**
+     * 更新同步
+     * @param value 同步值
+     */
+    private void updateSync(final boolean value) {
+        //创建线程更新当前语音
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                IData data = null;
+
+                try {
+                    IDataSource dataSource = DataSourceManager.getBookDataSource(); //获取数据源
+                    data = DataManager.createData(dataSource.getDataSource()); //创建数据对象
+
+                    //将同步复读开关参数值转换为数据库中实际存储的整型值
+                    int syncEnable = 0;
+                    if(value) syncEnable = 1;
+
+                    //更新数据库
+                    String sql = "UPDATE [Book] " +
+                            "SET [SyncEnable] = " + syncEnable + " " +
+                            "WHERE " +
+                            "[BookID] = " + getBookID();
+                    data.execute(sql); //执行更新
+                } finally {
+                    if(data != null) data.close(); //关闭数据对象
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    /**
+     * 更新当前语音位置
+     * @param position 语音位置
+     */
+    private void updateCurrentAudioPosition(final int position) {
+        //创建线程更新当前语音
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                IData data = null;
+
+                try {
+                    IDataSource dataSource = DataSourceManager.getBookDataSource(); //获取数据源
+                    data = DataManager.createData(dataSource.getDataSource()); //创建数据对象
+
+                    //更新数据库
+                    String sql = "UPDATE [Book] " +
+                            "SET [CurrentPosition] = " + position + " " +
+                            "WHERE " +
+                            "[BookID] = " + getBookID();
+                    data.execute(sql); //执行更新
+                } finally {
+                    if(data != null) data.close(); //关闭数据对象
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    /**
      * 私有字段类
      */
     private class Field {
@@ -988,6 +1076,11 @@ class Book implements IBook {
          * 当前语音目录
          */
         IBookCatalog currentAudio;
+
+        /**
+         * 当前语音位置
+         */
+        int currentAudioPosition;
 
         /**
          * 最后一个语音目录

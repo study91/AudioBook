@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -48,7 +49,6 @@ public class MediaPlayerView extends RelativeLayout {
         ui.bookNameTextView = (TextView) findViewById(R.id.bookNameTextView); //书名文本框
         ui.audioTitleTextView = (TextView) findViewById(R.id.audioTitleTextView); //标题文本框
         ui.playButton = (Button) findViewById(R.id.playButton); //播放按钮
-        ui.synchronizationButton = (Button) findViewById(R.id.synchronizationButton); //同步按钮
         ui.fullScreenButton = (Button) findViewById(R.id.fullScreenButton); //全屏按钮
         ui.volumeButton = (Button) findViewById(R.id.volumeButton); //音量按钮
         ui.catalogButton = (Button) findViewById(R.id.catalogButton); //目录按钮
@@ -170,6 +170,7 @@ public class MediaPlayerView extends RelativeLayout {
         @Override
         public void onReceive(Context context, Intent intent) {
             IBookMediaPlayer mediaPlayer = getMediaClient().getMediaPlayer(); //获取媒体播放器
+            Log.d("Test", "播放位置=" + mediaPlayer.getPosition());
 
             ui.audioPositionTextView.setText(MediaTools.parseTime(mediaPlayer.getPosition())); //设置语音位置文本
             ui.audioLengthTextView.setText(MediaTools.parseTime(mediaPlayer.getLength())); //设置语音长度文本
@@ -251,11 +252,6 @@ public class MediaPlayerView extends RelativeLayout {
          * 播放按钮
          */
         private Button playButton;
-
-        /**
-         * 同步按钮
-         */
-        private Button synchronizationButton;
 
         /**
          * 全屏按钮

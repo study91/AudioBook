@@ -31,11 +31,20 @@
         <!-- 播放按钮 -->
         <Button
             android:id="@+id/playButton"
-            android:layout_toLeftOf="@+id/catalogButton"
+            android:layout_toLeftOf="@+id/syncButton"
             android:layout_width="@dimen/button_width"
             android:layout_height="@dimen/button_height"
             android:layout_centerVertical="true"
             android:background="@drawable/button_play" />
+
+        <!-- 同步按钮 -->
+        <Button
+            android:id="@+id/syncButton"
+            android:layout_toLeftOf="@+id/catalogButton"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="@dimen/button_height"
+            android:layout_centerVertical="true"
+            android:background="@drawable/button_sync_disable" />
 
         <!-- 目录按钮 -->
         <Button
