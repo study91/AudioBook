@@ -131,6 +131,7 @@ class AssetMediaPlayer implements IMediaPlayer {
             case PREPARED:  //媒体准备就绪
                 getMediaPlayer().seekTo(position);
                 break;
+            case IDLE: //空闲状态
             case PREPARING: //媒体准备中
                 m.seekToPosition = position;
                 break;
@@ -157,7 +158,8 @@ class AssetMediaPlayer implements IMediaPlayer {
         int position = 0;
 
         switch (getMediaState()) {
-            case PREPARING:
+            case IDLE: //空闲状态
+            case PREPARING: //媒体准备中
                 position = m.seekToPosition;
                 break;
             case PREPARED:  //媒体准备就绪
