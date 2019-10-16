@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.study91.audiobook">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- 安卓8.0以后版本必须添加REQUEST_INSTALL_PACKAGES，否则会安装不上 -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" /> <!-- 安卓8.0以后版本必须添加REQUEST_INSTALL_PACKAGES，否则会安装不上 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application

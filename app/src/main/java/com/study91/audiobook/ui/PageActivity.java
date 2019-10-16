@@ -209,7 +209,7 @@ public class PageActivity extends Activity {
             IBookPage currentAudioPage = getBook().getCurrentAudioPage(mediaPosition); //当前语音页
 
             //只有当前页和当前语音页不相同时，才关闭同步开关
-            if (page.getPageNumber() != currentAudioPage.getPageNumber()) {
+            if (getBook().syncEnable() && page.getPageNumber() != currentAudioPage.getPageNumber()) {
                 getBook().setSyncEnable(false); //关闭同步开关
                 setSyncButton(); //设置同步按钮
             }

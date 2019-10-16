@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +18,7 @@ import com.study91.audiobook.book.IBook;
 import com.study91.audiobook.media.IBookMediaPlayer;
 import com.study91.audiobook.media.MediaClient;
 import com.study91.audiobook.tools.MediaTools;
+import com.study91.audiobook.ui.CatalogActivity;
 import com.study91.audiobook.ui.PageActivity;
 
 public class MediaPlayerView extends RelativeLayout {
@@ -74,14 +74,6 @@ public class MediaPlayerView extends RelativeLayout {
     }
 
     /**
-     * 显示页
-     */
-    private void showPage() {
-        Intent intent = new Intent(getContext(), PageActivity.class);
-        getContext().startActivity(intent);
-    }
-
-    /**
      * 获取媒体客户端
      * @return 媒体客户端
      */
@@ -99,7 +91,9 @@ public class MediaPlayerView extends RelativeLayout {
     private class OnIconClickListener implements OnClickListener {
         @Override
         public void onClick(View v) {
-            showPage(); //显示页
+            //显示目录窗口
+            Intent intent = new Intent(getContext(), CatalogActivity.class);
+            getContext().startActivity(intent);
         }
     }
 
@@ -109,7 +103,9 @@ public class MediaPlayerView extends RelativeLayout {
     private class OnTitleClickListener implements OnClickListener {
         @Override
         public void onClick(View v) {
-            showPage(); //显示页
+            //显示页窗口
+            Intent intent = new Intent(getContext(), PageActivity.class);
+            getContext().startActivity(intent);
         }
     }
 
@@ -179,9 +175,7 @@ public class MediaPlayerView extends RelativeLayout {
                 ui.audioSeekBar.setProgress(mediaPlayer.getPosition()); //设置语音进度条播放位置
             }
 
-            //设置书名称
-            IBook book = BookManager.getBook();
-            ui.bookNameTextView.setText("【" + book.getBookName() + "】");
+            ui.bookNameTextView.setText(getBook().getBookName()); //设置书名称
 
             //设置标题内容
             String title = mediaPlayer.getAudioTitle().trim().replace("　", "");

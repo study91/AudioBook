@@ -11,6 +11,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="3dp">
+
+        <!-- 有声书名称 -->
+        <TextView
+            android:id="@+id/bookNameTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:textSize="@dimen/media_player_book_name_font_size"
+            android:textColor="@color/media_player_title"/>
+
         <!-- 语音播放位置 -->
         <TextView
             android:id="@+id/audioPositionTextView"
@@ -18,6 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/media_player_margin"
+            android:textSize="@dimen/media_player_time_font_size"
             android:textColor="@color/media_player_text" />
 
         <!-- 语音长度 -->
@@ -28,6 +41,7 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/media_player_margin"
+            android:textSize="@dimen/media_player_time_font_size"
             android:textColor="@color/media_player_text" />
 
         <!-- 媒体拖动条 -->
@@ -76,24 +90,14 @@
                 android:textSize="@dimen/media_player_title_font_size"/>
         </RelativeLayout>
 
-        <!-- 书名称 -->
-        <TextView
-            android:id="@+id/bookNameTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="3dp"
-            android:layout_toLeftOf="@+id/mediaToolsLayout"
-            android:layout_toRightOf="@+id/iconLayout"
-            android:textColor="@drawable/hyperlink_white"
-            android:textSize="@dimen/media_player_book_name_font_size" />
-
         <!-- 语音标题 -->
         <com.study91.audiobook.view.ScrollTextView
             android:id="@+id/audioTitleTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
             android:layout_alignBottom="@+id/iconLayout"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="0dp"
             android:layout_toLeftOf="@+id/mediaToolsLayout"
             android:layout_toRightOf="@+id/iconLayout"
             android:ellipsize="marquee"
