@@ -16,7 +16,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 

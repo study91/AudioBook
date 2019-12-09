@@ -24,21 +24,22 @@
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- 目录窗口 -->
+        </activity> <!-- 目录窗口 -->
         <activity
             android:name=".ui.CatalogActivity"
-            android:launchMode="singleTask"/>
-
-        <!-- 页窗口 -->
+            android:launchMode="singleTask" /> <!-- 页窗口 -->
         <activity
             android:name=".ui.PageActivity"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask" /> <!-- 媒体服务 -->
 
         <!-- 媒体服务 -->
         <service android:name=".media.MediaService" />
+
+        <!-- 下载服务 -->
+        <service android:name=".download.DownloadService" />
     </application>
+
 </manifest>
